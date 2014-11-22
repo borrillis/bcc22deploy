@@ -1,0 +1,174 @@
+---
+layout: post
+title: Applied Generics : Vector class
+tags: ['.Net', 'C#', 'Generics']
+date: 8/26/2008 11:30:11 AM
+draft: false
+---
+
+<p>Generics are a great way of getting code reuse. However there are a few things that can make them difficult to work with. Generics are similar to C++ Templates in the way you define them, but are very different in the way they work. This series of articles is planned to explore Generics in detail by example.</p>  <p>Most of the online references to Generics that I have found are always dealing with collections. We all know that collections are a great way to use generics. However, it's a bit tougher to spot areas where you can use Generics to improve your code, that doesn't involve a collection of things. Today we are going to start with a very simple class and show where Generics can and can't help us.</p>  <h2>The Vector</h2>  <p>The vector that we will be working with here is composed of an ordered list ( tuple ) real numbers, or its scalar components. To keep things simple we will only be talking about vectors with 2,3 or 4 components. The components could be stored as floating point or integral values, so the .Net types under consideration are Int32, Int64, Single, Double, Decimal. All components will be the same type.</p>  <p>Without Generics implementing this would take a minimum of 5 and at most 15(!) classes. That is simply incredible. The amount of code duplication is staggering. So lets look at how we can make things simpler. The following show us a simple 2 dimensional Vector class using Int32 components:</p>  <div>   <pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">struct</span> Vector2
+{
+    <span class="kwrd">public</span> System.Int32 x;
+    <span class="kwrd">public</span> System.Int32 y;
+}</pre>
+But now if I wanted to use a floating point number as my component I would end up with something like this:</div>
+
+<div>
+  <pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">struct</span> Vector2Int32
+{
+    <span class="kwrd">public</span> System.Int32 x;
+    <span class="kwrd">public</span> System.Int32 y;
+}
+
+<span class="kwrd">public</span> <span class="kwrd">struct</span> Vector2Single
+{
+    <span class="kwrd">public</span> System.Single x;
+    <span class="kwrd">public</span> System.Single y;
+}</pre>
+</div>
+Start adding in 3 and 4 components and you can see how things are going to get out of hand fast. Lets take a look at solving this problem. Look at the following code snippet that shows the 2 component Int32 class from before, but with a few operators defined as well. 
+
+<div>
+  <pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">struct</span> Vector2Int32
+{
+    <span class="kwrd">public</span> System.Int32 x;
+    <span class="kwrd">public</span> System.Int32 y;
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Vector2Int32 <span class="kwrd">operator</span> +( Vector2Int32 lhs, Vector2Int32 rhs )
+    {
+        Vector2Int32 retVal;
+        retVal.x = lhs.x + rhs.x;
+        retVal.y = lhs.y + rhs.y;
+        <span class="kwrd">return</span> retVal;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Vector2Int32 <span class="kwrd">operator</span> -( Vector2Int32 lhs, Vector2Int32 rhs )
+    {
+        Vector2Int32 retVal;
+        retVal.x = lhs.x - rhs.x;
+        retVal.y = lhs.y - rhs.y;
+        <span class="kwrd">return</span> retVal;
+    }
+}</pre>
+</div>
+
+<p>And to make this Generic, we will replace all places where we use Int32 with a generic type, like this:</p>
+
+<div>
+  <pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">struct</span> Vector2&lt;T&gt;
+{
+    <span class="kwrd">public</span> T x;
+    <span class="kwrd">public</span> T y;
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Vector2&lt;T&gt; <span class="kwrd">operator</span> +( Vector2&lt;T&gt; lhs, Vector2&lt;T&gt; rhs )
+    {
+        Vector2&lt;T&gt; retVal;
+        retVal.x = lhs.x + rhs.x;
+        retVal.y = lhs.y + rhs.y;
+        <span class="kwrd">return</span> retVal;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Vector2&lt;T&gt; <span class="kwrd">operator</span> -( Vector2&lt;T&gt; lhs, Vector2&lt;T&gt; rhs )
+    {
+        Vector2&lt;T&gt; retVal;
+        retVal.x = lhs.x - rhs.x;
+        retVal.y = lhs.y - rhs.y;
+        <span class="kwrd">return</span> retVal;
+    }
+}</pre>
+</div>
+
+<p>You'll notice that if you use this class as is in your code that it won't compile. Yeah, I noticed it too. There is an important lesson here that you should always keep in mind when dealing with Generics. Unless the compiler is told otherwise, T will be System.Object. In the example above, since there is no type constraints specified, the compile assumes that T must be System.Object, which does not define operators + or -. Also there is no interface or intermediate type that defines those operators for us. </p>
+
+<p>However, thanks to search engines I did find a solution that will work. Check out <a href="http://www.codeproject.com/KB/cs/genericoperators.aspx" target="_blank">this article on Code Project</a> by <a href="http://www.codeproject.com/script/Membership/Profiles.aspx?mid=188603"><strong>Keith Farmer</strong></a><strong>. </strong>It goes into great detail on how to use the binary operators in a generic class. I'm not going to reproduce Keith's work here, rather I am just going to leverage it. The article and it's supporting materials are a great read and yet another great way of solving problems with Generics. Using Keith's solution the Vector class now looks like this:</p>
+
+<div>
+  <pre class="csharpcode"><span class="kwrd">public</span> <span class="kwrd">struct</span> Vector2&lt;T&gt;
+{
+    <span class="kwrd">public</span> T x;
+    <span class="kwrd">public</span> T y;
+
+    <span class="rem">/// &lt;summary&gt;</span>
+    <span class="rem">/// cached copy of the Add&lt;T,T&gt; delegate</span>
+    <span class="rem">/// &lt;/summary&gt;</span>
+    <span class="kwrd">private</span> <span class="kwrd">static</span> BinaryOperator&lt;T, T, T&gt; add;
+
+    <span class="rem">/// &lt;summary&gt;</span>
+    <span class="rem">/// cached copy of the Subtract&lt;T,T&gt; delegate</span>
+    <span class="rem">/// &lt;/summary&gt;</span>
+    <span class="kwrd">private</span> <span class="kwrd">static</span> BinaryOperator&lt;T, T, T&gt; subtract;
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Vector2&lt;T&gt; <span class="kwrd">operator</span> +( Vector2&lt;T&gt; lhs, Vector2&lt;T&gt; rhs )
+    {
+        <span class="kwrd">if</span> ( add == <span class="kwrd">null</span> )
+        {
+            add = GenericOperatorFactory&lt;T, T, T, Vector2&lt;T&gt;&gt;.Add;
+        }
+
+        Vector2&lt;T&gt; retVal;
+        retVal.x = add( lhs.x, rhs.x );
+        retVal.y = add( lhs.y, rhs.y );
+        <span class="kwrd">return</span> retVal;
+    }
+
+    <span class="kwrd">public</span> <span class="kwrd">static</span> Vector2&lt;T&gt; <span class="kwrd">operator</span> -( Vector2&lt;T&gt; lhs, Vector2&lt;T&gt; rhs )
+    {
+        <span class="kwrd">if</span> ( subtract == <span class="kwrd">null</span> )
+        {
+            subtract = GenericOperatorFactory&lt;T, T, T, Vector2&lt;T&gt;&gt;.Subtract;
+        }
+
+        Vector2&lt;T&gt; retVal;
+        retVal.x = subtract( lhs.x, rhs.x );
+        retVal.y = subtract( lhs.y, rhs.y );
+        <span class="kwrd">return</span> retVal;
+    }
+}</pre>
+</div>
+The Vector class is now a bit more complicated, but no unduly so. The GenericOperatorFactory from Keith's article is used to generate the appropriate add and subtract methods which we call from the overloaded operator. So the whole point of this was, can we now use any of the 5 numeric types to store the components? The following code shows some sample usages. 
+
+<div>
+  <pre class="csharpcode">[TestMethod]
+<span class="kwrd">public</span> <span class="kwrd">void</span> AddInt32()
+{
+    Vector2&lt;Int32&gt; a,b, expected, actual;
+
+    a.x = 8; a.y = 16;
+    b.x = 5; b.y = 10;
+
+    expected.x = 13; expected.y = 26;
+
+    actual = a + b;
+
+    Assert.AreEqual( expected.x, actual.x );
+    Assert.AreEqual( expected.y, actual.y );
+}
+
+[TestMethod]
+<span class="kwrd">public</span> <span class="kwrd">void</span> AddSingle()
+{
+    Vector2&lt;Single&gt; a, b, expected, actual;
+
+    a.x = 8.7f;   a.y = 16.03f;
+    b.x = 5.045f; b.y = 10.0095f;
+
+    expected.x = 13.7450f;
+    expected.y = 26.0395f;
+
+    actual = a + b;
+
+    Assert.AreEqual( expected.x, actual.x, .00001f );
+    Assert.AreEqual( expected.y, actual.y, .00001f );
+}</pre>
+</div>
+
+<p>These tests can be expanded to include the other types, I chose Int32 and Single specifically because they showed the code working between integral and floating point types.</p>
+
+<p>So far our problem has been relatively easy to solve using Generics, that is if you ignore the part about the operators. The second part of the problem described at the beginning of this article is a lot hard to do using Generics. In fact I don't even have a solution for that using Generics. The trick, and a big difference between Generics and C++ Templates, is that Generics only operate on <strong>types</strong>. Having 2,3 or 4 components is not difference in types, it's a difference in instances of a type. </p>
+
+<p>The way I've solved this in the past, is to pass that value in as a parameter of a constructor. This works well if your Generic type is a class, however it's not so great if your type is a struct. As a class, you can overload the constructors such that the number of components is always required in order to instantiate a new instance of the class. In C# structs are not allowed to override the default constructor, you know, the one with no parameters. The compiler will always provide the type with a default constructor. That means there isn't a way to enforce passing in how many components the Vector is going to have in the constructor, when using a struct, </p>
+
+<p>Since the problem can't be solved using Generics, which solution you choose is entirely up to you. For my purposes, performance is key, and I only have to deal with a max of 3 components, so I stick with structs and have 3 different versions of each.</p>
+
+<p>Stay tuned for the next article where we'll tackle another sticky problem and solve it using Generics.</p>
+

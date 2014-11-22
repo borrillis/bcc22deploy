@@ -1,0 +1,44 @@
+---
+layout: 'default'
+changefreq: daily
+priority: 0.8
+referencesOthers: true
+title: "MichaelCummings.net | App and Game development using C#, Unity 3D, Microsoft Azure and more"
+---
+
+<!-- Example row of columns -->
+<div class="row">
+	<div class="span8" id="layout-content">
+		<div>
+			<div class="zone zone-content">
+				<article class="content-item page"></article>
+				<article class="widget-content widget-recent-blog-posts widget">
+					<ul class="blog-posts content-items">
+						<li>
+							<% for document in @getCollection('posts',[{date:-1}]).toJSON()[0...9]: %>
+								<%- @partial('post', {title: document.title, url: document.url, tags: document.tags, date: document.date, content: document.contentRenderedWithoutLayouts }) %>
+							<% end %>
+						</li>
+					</ul>
+				</article>
+			</div>
+			<div class="zone zone-after-content">
+				<article class="widget-after-content widget-html-widget widget">
+					<p><a href="/Mathoms">All Posts</a></p>
+				</article>
+			</div>
+		</div>
+    </div>
+    <div class="span3">
+        <div class="well aside-2">
+            <aside class="aside-second" id="aside-second">
+                <div class="zone zone-aside-second">
+                    <%- @partial('tag-cloud') %>
+                    <%- @partial('community') %>
+                    <%- @partial('evangelists') %>
+                    <%- @partial('twitter-feed') %>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>

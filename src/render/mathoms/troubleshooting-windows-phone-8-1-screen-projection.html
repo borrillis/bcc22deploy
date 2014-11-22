@@ -1,0 +1,133 @@
+---
+layout: post
+title: Troubleshooting Windows Phone 8.1 Screen Projection
+tags: ['Windows Phone 8.1', 'Project My Screen']
+date: 4/30/2014 12:00:03 PM
+draft: false
+---
+
+<p><img style="float: left; display: inline;" border="0" alt=" " src="http://blogs.windows.com/resized-image.ashx/__size/550x0/__key/communityserver-components-userfiles/00-00-01-66-82-attached+files/phone_2D00_icon.png" width="50" align="left" height="68" />If you, like me, have been waiting for the Project My Screen feature to be available on your Windows Phone, you do not have to wait much longer. This feature has been announced for Windows Phone 8.1 and you can <a href="http://blogs.windows.com/windows/b/buildingapps/archive/2014/04/14/windows-phone-8-1-now-available-on-windows-phone-preview-for-developers.aspx" target="_blank">preview it</a> today if you have a DevCenter Account.</p>
+<p>This feature will allow you to display your phone&rsquo;s screen on your PC or any Miracast capable device. In order to use Miracast, you&rsquo;ll need a phone that is Miracast capable as well. Currently I am not aware of any Windows Phones that can use the Miracast features of Windows Phone 8.1.</p>
+<p>Being able to project my phone&rsquo;s screen to my PC is still very useful. In order to see your phone on the PC you&rsquo;ll need to install the <a href="http://www.microsoft.com/en-us/download/details.aspx?id=42536" target="_blank">phone viewer application</a> on your PC and connect your Phone to your PC via a USB cable.</p>
+<p>Most of the time this should work without any problems. However, occasionally the application will fail to display your phone. In this case you should follow these steps to update the driver on your PC for Windows Phone.</p>
+<ol>
+<li>Connect your Windows Phone to your Windows 8 PC via a USB cable</li>
+<li>Go to Device Manager on PC.<br /><a href="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_6.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_thumb_2.png" width="244" height="155" /></a></li>
+<li>Under "Universal Serial Bus Devices" you should find several instances of your phone. Right click each of them and press uninstall. It will prompt you to reboot, just select "<b>No</b>".<br /><a href="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_8.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_thumb_3.png" width="244" height="155" /></a></li>
+<li>Disconnect your Windows Phone from the USB cable.</li>
+<li>Launch the &ldquo;Project My Screen app&rdquo; on the PC<br /><a href="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_2.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_thumb.png" width="244" height="139" /></a></li>
+<li>Reconnect your Windows Phone to your PC via the USB cable and wait around 30 seconds for it to reinstall the drivers. Note: you may need internet access for this on PC.<br /><a href="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_10.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/Troubleshooting-Windows-Pho.1-Projection_6EAA/image_thumb_4.png" width="244" height="139" /></a></li>
+</ol>
+<p>&nbsp;</p>
+<p>Here is a cheat sheet for the commands that the &ldquo;Project My Screen app&rdquo; recognizes:</p>
+<table cellspacing="0" cellpadding="0" border="0">
+<tbody>
+<tr>
+<td valign="top" width="319">
+<p><b>To</b><b></b></p>
+</td>
+<td valign="top" width="319">
+<p><b>Press</b><b></b></p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>View the Help screen</p>
+</td>
+<td valign="top" width="319">
+<p>F1</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Go to windowed mode</p>
+</td>
+<td valign="top" width="319">
+<p>ESC</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Show/hide the background image</p>
+</td>
+<td valign="top" width="319">
+<p>B</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Show/hide the expanded screen mode</p>
+</td>
+<td valign="top" width="319">
+<p>E</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Toggle Full Screen mode</p>
+</td>
+<td valign="top" width="319">
+<p>F or ALT+ENTER</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Show/hide the phone shell image</p>
+</td>
+<td valign="top" width="319">
+<p>P</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Show current frame rate (desktop)</p>
+</td>
+<td valign="top" width="319">
+<p>R</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Show/hide touch dots</p>
+</td>
+<td valign="top" width="319">
+<p>T</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Rotate phone left and landscape</p>
+</td>
+<td valign="top" width="319">
+<p>Left arrow</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Rotate phone right and landscape</p>
+</td>
+<td valign="top" width="319">
+<p>Right arrow</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Show phone in portrait orientation</p>
+</td>
+<td valign="top" width="319">
+<p>Up/Down arrow</p>
+</td>
+</tr>
+<tr>
+<td valign="top" width="319">
+<p>Reset phone orientation (matches phone)</p>
+</td>
+<td valign="top" width="319">
+<p>Spacebar</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p>&nbsp;</p>
+<p>I hope you get as much use out of this app as I do, it&rsquo;s great for Demos!</p>
+

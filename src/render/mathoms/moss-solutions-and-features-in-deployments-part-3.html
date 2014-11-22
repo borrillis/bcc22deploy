@@ -1,0 +1,35 @@
+---
+layout: post
+title: MOSS Solutions and Features in Deployments ( Part 3 )
+date: 2/20/2009 5:09:46 AM
+draft: false
+---
+
+<p>In <a target="_blank" href="http://geekswithblogs.net/Mathoms/archive/2008/10/18/moss-solutions-and-features-in-deployments--part-1.aspx">Parts 1</a> <a target="_blank" href="http://geekswithblogs.net/Mathoms/archive/2008/10/18/moss-solutions-and-features-in-deployments--part-2.aspx">and 2</a> of this series we covered some of the pitfalls and precautions the need to be taken when deploying SharePoint artifacts such as Site Columns, and Content Types. Wrapping up these posts we will discuss how to deploy Page Layouts successfully. And just so that we are still on the same page, these posts are focused on deploying using the SharePoint Solution deployments not creating these artifacts using SharePoint Designer or the Web Interface.</p>
+<h1>Page Layouts</h1>
+<p>Page Layouts are a great way of reusing structure within your sites. My typical development pattern is to create a layout in a development environment using the web interface, the open it up in SharePoint Designer to polish it up.</p>
+<p>The main reason I go about it this way is that using SPD to design a layout is just so easy. Think of it in the same vein as what Visual Studio does for regular ASP.NET applications. The astute reader may have noticed that in previous posts I have cautioned <strong>against</strong> the use of SPD. This is true, but that is always tempered with 'with caution'. Knowing what using SharePoint designer means can make all the difference. Additionally, I only use it against my development farm, no where else.</p>
+<p><a rel="lightbox" href="http://gwb.blob.core.windows.net/mathoms/WindowsLiveWriter/MOSSSolutionsandFeaturesinDeploymentsPar_1265F/image_2.png"><img style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px" border="0" alt="image" align="left" width="148" height="29" src="/Media/Default/Media/Default/Migrated/image_thumb.png"></a> Once I have gotten the layout to a state that I am happy with, I copy the contents using the code view of SPD, paste it into a file in Visual Studio. From there I can add it to my Feature and have it deployed properly. I then reghost the file. Remember that SPD is going to unghost (customize) the file and any attempt to update it using a feature will fail miserably.</p>
+<p>Here's your first tip: It appears that some engineer, and I use this term loosely, decided that when you deploy a file to SharePoint, the determination of it being a Page Layout is the presence of a tag with the name 'Content'. Not 'content', or 'conTent', just 'Content'. Would you care to guess what capitalization SPD uses by default for content section in page layouts? Yep, you guessed it 'content' I'm shipping a case of wet trout to the MS campus as you read this, let the slapping begin. And it gets even worse, you have to have all the &lt;asp:Content /&gt; controls use the proper case.</p>
+<p>The fallout of this is that if you deploy a file without a 'Content' tag SharePoint determines that this is just a plain old HTML file, however it does some additional inspection and doesn't find an HTML tag, so it kindly inserts one for you. Isn't that sweet? I'm not smiling. This causes your layout file to be customized and and future upgrades will appear to not work even though the file in the 12 Hive is correct. Here is the offending code that you will find at the <em>end</em> of you page layout if you view it in SPD. 
+</p>
+<pre class="brush: xml;">&lt;html xmlns:mso="urn:schemas-microsoft-com:office:office"xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882"&gt;&lt;head&gt;
+&lt;META name="WebPartPageExpansion" content="full"&gt;
+&lt;!--[if gte mso 9]&gt;&lt;xml&gt;
+&lt;mso:CustomDocumentProperties&gt;
+&lt;mso:PublishingPreviewImage msdt:dt="string"&gt;&lt;/mso:PublishingPreviewImage&gt;
+&lt;mso:ContentType msdt:dt="string"&gt;Page Layout&lt;/mso:ContentType&gt;
+&lt;mso:MasterPageDescription msdt:dt="string"&gt;&lt;/mso:MasterPageDescription&gt;
+&lt;mso:PublishingAssociatedVariations msdt:dt="string"&gt;&lt;/mso:PublishingAssociatedVariations&gt;
+&lt;mso:PublishingHidden msdt:dt="string"&gt;0&lt;/mso:PublishingHidden&gt;
+&lt;mso:PublishingAssociatedContentType msdt:dt="string"&gt;;#Agenda item;#0x010100C568DB52D...;#&lt;/mso:PublishingAssociatedContentType&gt;
+&lt;/mso:CustomDocumentProperties&gt;
+&lt;/xml&gt;&lt;![endif]--&gt;
+&lt;title&gt;Dummy Content Type&lt;/title&gt;&lt;/head&gt;</pre>
+<p>Fortunately this can be easily corrected, if you've already been bit by it. You’ll know this is the problem, because when you go to load a page based on that layout, you’ll receive this error: 
+
+<strong><em>Only Content controls are allowed directly in a content page that contains Content controls.</em></strong></p>
+<p>First do a Find/Replace on your Page Layouts and make all of the asp:content tag asp:Content. Next using the <a target="_blank" href="http://stsadm.blogspot.com/">STSADM Extensions from Gary Lapointe</a>, uncustomize the file with the gl-reghostfile operation. </p>
+<p><a rel="lightbox" href="http://gwb.blob.core.windows.net/mathoms/WindowsLiveWriter/MOSSSolutionsandFeaturesinDeploymentsPar_1265F/image_4.png"><img style="BORDER-BOTTOM: 0px; BORDER-LEFT: 0px; DISPLAY: inline; BORDER-TOP: 0px; BORDER-RIGHT: 0px" title="image" border="0" alt="image" width="636" height="350" src="/Media/Default/Media/Default/Migrated/image_thumb_1.png"></a> 
+This operation uses the RevertContentStream() method of the SPFile class. Now when you upgrade your solution the updated layouts will be used.</p>
+

@@ -1,0 +1,168 @@
+﻿```
+layout: post
+title: Introduction to MonoGame 3.2 for Windows 8
+tags: ['MonoGame', 'Visual Studio', 'VS2012', 'Game Development', 'XNA', 'Windows 8.1']
+date: 3/16/2014 12:54:29 PM 
+draft: false
+```
+<p><img style="float: left; margin: 0px 5px 0px 0px; display: inline" src="http://www.monogame.net/wp-content/themes/monogame/images/monogame.png" width="80" align="left" height="80">MonoGame is a cross platform open source implementation of Microsoft’s XNA framework. MonoGame has been under active development for many years and has been used in a number of games on iOS, Android, Ouya, and of course Windows 8 and Windows Phone 8. In this post, we will cover how to set up your project structure to build for Windows 8 and in a later post for Windows Phone 8. We will also add a few elements to our scene to see it work. In later posts, we will build a complete game using MonoGame.</p> <blockquote class="highlight&quot;"> <p><strike>NOTE: Although the title of the post references MonoGame 3.2, as of the publication date of this post, the team has not yet released version 3.2. This post will be using a pre-release version of MonoGame 3.2 and will be updated once 3.2 is released</strike>.</p></blockquote> <p>&nbsp;</p> <blockquote> <p><strong>Updates:</strong></p> <p>3/31/2014 - Added missing steps for initialization and content loading</p> <p>4/13/2014 - Updated for Official MonoGame 3.2 Release</p></blockquote> <p>You can get the MonoGame libraries in three different packaging formats; source, installer or NuGet. Recently (as of March 2014 ), the MonoGame team has changed how the source is built, so I will not be covering that here. Using the installer is fairly straightforward as well, but offers less in how to build for multiple platforms. In this post we will be using the NuGet packages to configure the projects files and build our first sample.</p> <p>There are literally tons of examples that use XNA to demonstrate some game technique, mechanic or even entire games. This tutorial extends a <a href="http://msdn.microsoft.com/en-us/library/bb975644(v=xnagamestudio.31).aspx" target="_blank">tutorial</a> that was published on the MSDN site for XNA Game Studio 3.1. For this series the code and tutorial text has been updated to match the MonoGame Framework. For other tutorials and samples, in general, if the code was written for XNA Framework version 4.0 or for the Windows Phone, then it should work with very few changes.</p> <h2>Create a Windows Store Project</h2> <p><a href="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_9.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_thumb_3.png" width="644" height="446"></a></p> <ol> <li>From the menu select <strong>File</strong> -&gt; <strong>New Project</strong>  <li>Select the template; <strong>Visual C# </strong>-&gt; <strong>Windows Store</strong> -&gt; <strong>Blank App (XAML)</strong>  <li>Name the project <em>“GoingBeyond”</em>  <li>Click <strong>OK</strong> </li></ol> <p>&nbsp;</p> <h2>Configure MonoGame References</h2> <p>NuGet is the default package manager for Visual Studio. The MonoGame team has a set of NuGet packages that can be installed into your projects in order to use the functionality of the libraries.</p> <p>For the project we just created we will add one or more NuGet packages. Follow the instructions below to install the correct MonoGame packages;</p> <ol> <li><strong>Right Click</strong>&nbsp; the ‘GoingBeyond’ project, select <strong>Manage NuGet Packages</strong>  <li>On the the list on the left, select <strong>Online</strong> then <strong>nuget.org</strong> to display a list of available packages.  <li>In the search box in the upper right hand corner type <strong>MonoGame</strong>  <li>Look through the list to find <strong>MonoGame</strong>, select it  <li>Click the <strong>Install</strong> button to install the package.  <li>When asked to overwrite ‘App.xaml’ click <strong>Yes</strong>  <li>When asked to overwrite ‘App.xaml.cs’ click <strong>Yes</strong>  <li>Click <strong>Close</strong>  <li>Click <strong>Yes</strong> to reload any open files </li></ol> <p>&nbsp;</p> <h2>Test the Project</h2> <ol> <li>In the main toolbar, change the deployment target from <strong>Local Machine</strong> to <strong>Simulator</strong>, this will make it easier for you to debug and test your game as we progress.<br><a href="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_7.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_thumb_2.png" width="244" height="108"></a>  <li>Hit <strong>F5</strong> to run your project, you should see a blue screen displayed after the project compiles and deploy.<br><a href="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_4.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_thumb_1.png" width="244" height="157"></a> </li></ol> <h2>Add the Content</h2> <p>The first thing that you will need before you start coding are some art assets to play around with. In this case, you need a 3D model, and an associated texture file so that the model has some detail. These assets will be loaded into your game using MonoGame’s implementation of the XNA Framework Content Pipeline.</p> <p>You can find these assets in this sample file (<a href="http://1drv.ms/1glZeH3" target="_blank">GoingBeyond_Content.zip</a>). Download the sample file now and extract its contents to a directory on your local drive.</p> <p>To add the content files to your project, drag the <strong>Content</strong> folder onto your <strong>GoingBeyond</strong><em> </em>project file in Visual Studio. This will add all of the content files to your project. To have Visual Studio include the files as part of your package for the Windows Store, you need to set the <strong>Build Action</strong> property on each file under the new Content folder to <strong>Content</strong><em>.</em></p> <p><a href="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_11.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/image_thumb_4.png" width="122" height="244"></a></p> <h2>Load the Model Using the Content Pipeline</h2> <p>You need to add to the way the initialization and content loading are handled. Starting from the top of the <code>Game</code> class and continuing down to just above the call to <code>Update</code>, modify the code as follows:</p>  <div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:dbe3ec84-2a4a-478c-b791-41f46d48632f" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">GraphicsDeviceManager graphics;
+
+//Camera/View information
+Vector3 cameraPosition = new Vector3(0.0f, 0.0f, -5000.0f);
+Matrix projectionMatrix;
+Matrix viewMatrix;
+
+//Visual components
+Ship ship = new Ship();
+
+public Game1()
+{
+    graphics = new GraphicsDeviceManager(this);
+    Content.RootDirectory = "Content";
+}
+
+/// &lt;summary&gt;
+/// Allows the game to perform any initialization it needs to before 
+/// starting to run. This is where it can query for any required 
+/// services and load any non-graphic related content.  
+/// Calling base.Initialize will enumerate through any components
+/// and initialize them as well.
+/// &lt;/summary&gt;
+protected override void Initialize()
+{
+    projectionMatrix = Matrix.CreatePerspectiveFieldOfView(
+        MathHelper.ToRadians(45.0f),
+        GraphicsDevice.DisplayMode.AspectRatio, 
+        1.0f, 10000.0f);
+    viewMatrix = Matrix.CreateLookAt(cameraPosition, 
+        Vector3.Zero, Vector3.Up);
+
+    base.Initialize();
+}
+
+private Matrix[] SetupEffectDefaults(Model myModel)
+{
+    Matrix[] absoluteTransforms = new Matrix[myModel.Bones.Count];
+    myModel.CopyAbsoluteBoneTransformsTo(absoluteTransforms);
+
+    foreach (ModelMesh mesh in myModel.Meshes)
+    {
+        foreach (BasicEffect effect in mesh.Effects)
+        {
+            effect.EnableDefaultLighting();
+            effect.Projection = projectionMatrix;
+            effect.View = viewMatrix;
+        }
+    }
+    return absoluteTransforms;
+}
+
+protected override void LoadContent()
+{
+    ship.Model = Content.Load&lt;Model&gt;("Models/p1_wedge");
+    ship.Transforms = SetupEffectDefaults(ship.Model);
+}
+
+/// &lt;summary&gt;
+/// UnloadContent will be called once per game and is the place to unload
+/// all content.
+/// &lt;/summary&gt;
+protected override void UnloadContent()
+{
+}
+</pre></div>
+
+<p>This code allows for the ship to be loaded from the file system and placed properly in your scene.</p>
+<h2>Drawing a Ship</h2>
+<p>Think of the idea of a ship on the screen. It is drawn using a <code>Model</code> class, it has a position tracked by a <code>Vector3</code>, and still another <code>Vector3</code> tracks velocity. A <code>float</code> tracks the rotation angle. Each of these data types is modified or checked in different places along the code path, and while the end result looks good to the user, the drawback comes when you try to extend the gameplay to include another object that needs similar data.</p>
+<p>If, for instance, you wanted to add a second ship that would also draw on the screen, and had the ability to move and turn, you would have to create a copy of each of the variables you were using for the first ship. You would have to duplicate the code you wrote that checked and modified each variable. Each copied line would be nearly identical to the original line, except that it was acting on a new variable.</p>
+<p>For a game that will ultimately have more than a dozen objects all drawing and moving around, this is unworkable. The duplicated code would make your code unreadable and painful to modify. However, there is a better way. If you create a code object that holds the common variables that allow you to draw and move a 3D object, then maintain a list of these objects, you can draw and move them all together using the same code. This process is called encapsulation, and is the beginning of object-oriented programming, which becomes more and more important the larger your game becomes.</p>
+<p>Start by right-clicking on your project in Solution Explorer, and select <strong>Add</strong>, then <strong>Class</strong>. Type <code>Ship.cs</code> into the <strong>Name</strong> box, then click <strong>Add</strong>.</p>
+<p>When you add the new file, it will open up in the code window. This new file represents a class, or code object. This particular class is named <code>Ship</code>. You will notice it is very minimal now; modify it so it looks like the following:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:745b90b1-4fb0-4bc7-8f2e-2107efd3c55d" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">using System;
+using System.Collections.Generic;
+using System.Text;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+
+namespace GoingBeyond
+{
+    class Ship
+    {
+        public Model Model;
+        public Matrix[] Transforms;
+
+        //Position of the model in world space
+        public Vector3 Position = Vector3.Zero;
+
+        //Velocity of the model, applied each frame to the model's position
+        public Vector3 Velocity = Vector3.Zero;
+        // thrust is the amount of force applied in the forward direction, used to calculate Velocity
+        private float thrust = 0.0f;
+        //amplifies controller speed input
+        private const float VelocityScale = 5.0f;
+
+        public Matrix RotationMatrix = Matrix.CreateRotationX(MathHelper.PiOver2);
+        private float rotation;
+        public float Rotation
+        {
+            get { return rotation; }
+            set
+            {
+                float newVal = value;
+                while (newVal &gt;= MathHelper.TwoPi)
+                {
+                    newVal -= MathHelper.TwoPi;
+                }
+                while (newVal &lt; 0)
+                {
+                    newVal += MathHelper.TwoPi;
+                }
+
+                if (rotation != value)
+                {
+                    rotation = value;
+                    RotationMatrix =
+                        Matrix.CreateRotationX(MathHelper.PiOver2) *
+                        Matrix.CreateRotationZ(rotation);
+                }
+
+            }
+        }
+    }
+}</pre></div>
+<p>You can see that the <code>Ship</code> class now does a lot—it holds onto the ship's position, velocity, rotation, and 3D model, and has its own <code>Update</code> method that will move the ship around.</p>
+<p>Now that you have created the <code>Ship</code> class, you need to change the code in the Game1.cs code file to take advantage of this new, encapsulated data. Double-click on <strong>Game1.cs</strong> in your Solution Explorer.</p>
+<p>Start with drawing the ship's model. You will be drawing <code>Model</code> objects on the screen, so create a method that will draw a chosen <code>Model</code>. Below the <code>Draw</code> method, add a new method called <code>DrawModel</code>, like so:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:ae37f328-088a-4aef-9105-712b19075a63" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">public static void DrawModel(Model model, Matrix modelTransform, Matrix[] absoluteBoneTransforms)
+{
+    //Draw the model, a model can have multiple meshes, so loop
+    foreach (ModelMesh mesh in model.Meshes)
+    {
+        //This is where the mesh orientation is set
+        foreach (BasicEffect effect in mesh.Effects)
+        {
+            effect.World =
+                absoluteBoneTransforms[mesh.ParentBone.Index] *
+                modelTransform;
+        }
+        //Draw the mesh, will use the effects set above.
+        mesh.Draw();
+    }
+}</pre></div>
+<p>This <code>DrawModel</code> method takes your model-drawing algorithm and applies it to any <code>Model</code> object passed into it, drawing the <code>Model</code> on the screen. Next, modify the <code>Draw</code> call so that it calls this new method:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:f250258d-388c-4c36-9941-b1f630e8e5eb" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">protected override void Draw(GameTime gameTime)
+{
+    graphics.GraphicsDevice.Clear(Color.CornflowerBlue);
+
+    Matrix shipTransformMatrix = ship.RotationMatrix
+            * Matrix.CreateTranslation(ship.Position);
+    DrawModel(ship.Model, shipTransformMatrix, ship.Transforms);
+    base.Draw(gameTime);
+}</pre></div>
+<p>If you run your game now you should see the ship displayed in the center of the screen, like so:</p>
+<p><a href="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/screenshot_03312014_100741_2.png"><img title="screenshot_03312014_100741" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="screenshot_03312014_100741" src="/Media/Default/Windows-Live-Writer/5fd9337ccc35_7E1C/screenshot_03312014_100741_thumb.png" width="644" height="364"></a></p>
+<h3>Wrapping up</h3>
+<p>This concludes this part of the introduction. You were able to create a new empty Windows 8 project, and add the MonoGame libraries. You used the MonoGame Framework to draw a 3D model of a ship on the screen. And you were able to run the game in the Simulator and see the ship drawn on the screen. Stay tuned for the remainder of this game in future posts.</p>

@@ -1,0 +1,9 @@
+---
+layout: post
+title: Installing Xna 3.1 or 4.0 for use on a Build Server without Visual Studio
+date: 8/9/2012 10:42:57 AM
+draft: false
+---
+
+<p>I hate having to install an IDE on a build server. It just seems like a complete waste of space. I’ll never launch the IDE on the build server. A build server should be just to build software not develop it. So it seems very wasteful to have to install VS 2008 or VS 2010 in order to install Xna Game Studio 3.1 or 4.0. </p>  <p>Well, wait no longer, I have solved this problem. Actually, it was <a href="http://blogs.msdn.com/b/astebner/archive/2010/11/05/10086842.aspx" target="_blank">Aaron Stebner</a> who clued me into a way to install just the bits I needed and avoid the VS integration bits. If you follow his instructions to install the main package using the /x switch to just extract the contents, then you can install just these packages to be able to build your Xna projects on a build server:</p>  <ul>   <li>\Redist\XNA FX Redist\xnafx[40|31]_redist.msi</li>    <li>Setup\xnags_platform_tools.msi</li>    <li>Setup\xnags_shared.msi</li> </ul>  <p>And your all set. </p>
+

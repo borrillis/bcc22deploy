@@ -1,0 +1,11 @@
+﻿```
+title: Contact Me
+layout: page
+pageOrder: 1
+```
+
+<p>I'd love to hear from you! Use the social tiles in the menu or the comments form below to contact me:</p>
+
+<footer>
+    <%- @partial('disqus') if @disqusShortName %>
+</footer>

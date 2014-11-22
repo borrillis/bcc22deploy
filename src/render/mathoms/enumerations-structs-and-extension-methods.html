@@ -1,0 +1,121 @@
+---
+layout: post
+title: Enumerations, structs and Extension Methods
+date: 6/16/2009 8:13:50 AM
+draft: false
+---
+
+<p>I happened to come across a situation where I needed an Enumeration but the enumeration needed to provide more than just a int value. In my situation, I not only had a integer value that was tied to the database, but I also needed to display an image for each individual value. I wanted to maintain a .Net-ish look and feel to the code, so I started by writing a few tests based on an existing enumeration. First the enum :</p>
+<pre class="brush: csharp;">public enum StatusIndicator : int
+{
+    Ready = 1,
+    Paused = 2,
+    Offline = 3
+}</pre>
+<p>And the tests : </p>
+<pre class="brush: csharp;">[TestMethod]
+public void GetPausedId()
+{
+    int expected = 2;
+    int actual = (int)StatusIndicator.Paused;
+
+    Assert.AreEqual( expected, actual );
+}
+
+
+[TestMethod]
+public void GetPausedUrl()
+{
+    string expected = "status.paused.jpg";
+    string actual = StatusIndicator.Paused.Image;
+
+    Assert.AreEqual( expected, actual );
+}</pre>
+<p>So obviously at this point the GetPausedImage() test fails because the enumeration doesn’t have a member named Image. The easiest way to do this on an existing enumeration without breaking any existing code is to use a static class and Extension Methods.</p>
+<pre class="brush: csharp;">static class StatusIndicatorHelper
+{
+    private static readonly Dictionary&lt;StatusIndicator, string&gt; _image;
+
+    static StatusIndicatorHelper()
+    {
+        _image = new Dictionary&lt;StatusIndicator, string&gt;();
+        _image.Add( StatusIndicator.Ready, "status.ready.jpg" );
+        _image.Add( StatusIndicator.Paused, "status.paused.jpg" );
+        _image.Add( StatusIndicator.Offline, "status.offline.jpg" );
+    }
+
+    public static string Image( this StatusIndicator value)
+    {
+        return _image[ value ];
+    }
+}</pre>
+<p>However, even with this code, that test fails. It’s expecting Image as a Property, not a Method. Unfortunately, we can only create Extension Methods, not Extension Properties, so I ended up having to modify the test to use a method. This works, but maintenance looks like it could be disastrous.  If I add a new enumeration value, I have to add a line of initialization code to create a mapping between the value and it’s image. If I add a new attribute tot he enumeration, I have to add the container, it’s initialization code, and an extension method to get the attribute value for the enumeration.</p>
+<p>Can this be made any better with Attributes? Let’s take a look at how I implemented it.</p>
+<pre class="brush: csharp;">enum StatusIndicator
+{
+    [StatusIndicatorAttribute( "status.ready.jpg" )]
+    Ready = 1,
+    [StatusIndicatorAttribute( "status.paused.jpg" )]
+    Paused = 2,
+    [StatusIndicatorAttribute( "status.offline.jpg" )]
+    Offline = 3
+}
+
+[AttributeUsage( AttributeTargets.Field, AllowMultiple = true )]
+class StatusIndicatorAttribute : Attribute
+{
+    public StatusIndicatorAttribute( string image ) { this.Image = image; }
+    public string Image { get; set; }
+
+    public static StatusIndicatorAttribute Values( StatusIndicator value )
+    {
+        // get the list of fields in the enum
+        FieldInfo field = typeof( StatusIndicator ).GetField( value.ToString() );
+        object[] atts = field.GetCustomAttributes( typeof( StatusIndicatorAttribute ), false );
+
+         // if we found 1, take a look at it
+        if ( atts.Length &gt; 0 )
+        {
+            // convert the first element to the right type (assume there is only 1 attribute)
+            return (StatusIndicatorAttribute)atts[ 0 ];
+        }
+
+        return null;
+    }
+}
+
+static class StatusIndicatorHelper
+{
+    public static string Image( this StatusIndicator value )
+    {
+        return StatusIndicatorAttribute.Values( value ).Image;
+    }
+}</pre>
+<p>This required modifying the enumeration, but in a non-breaking way. I also had to add two new classes, one for the attribute and another for the Extension Method helpers. The test code from the first implementation didn’t have to change at all, which is good. So how does this compare for maintenance? If I need to add a new enumeration value, I can just add the value into the enumeration and it’s associated attribute, usually a quick Copy+Paste+Modify operation. To add a new attribute, I would have to add a new Property to the StatusIndicatorAttribute class, and modify the constructor to accept the new attribute. Then I would have to add a new Extension Method to the StatusIndicatorHelper class to return the new attribute. Lastly, add the new attribute values onto existing enumeration values. A second way to add an attribute is a little more bloated, and that is implemented using a new Attribute class. I don’t recommend it as it causes code bloat in the Values() static method being in every new Attribute class.</p>
+<p>This method caused me some concern due to the Reflection involved in getting the attribute value. This could be mitigated by caching the value in the Values() static method after retrieving it the first time, thereby reducing the Reflection calls to one per enumeration value. You could also control the timing of the reflection by using a static constructor to iterate over all the fields in the enumeration and cache the Attributes at that time.</p>
+<p>The last implementation I came up with had the least .Net feel to it, in the implementation, but fit the requirements perfectly. </p>
+<p>[Edit: 06/17/2009 - As Steve points out in the comments, this is the <a target="_blank" href="http://www.bearcave.com/software/java/misl/enum/type_safe_enum.html">java type safe enumeration pattern</a>. I didn't really 'come up' with this as much as I stumbled upon it. I also added the private constructor as I had missed that. ]</p>
+<pre class="brush: csharp;">struct StatusIndicator
+{
+    public static readonly StatusIndicator Ready    = new StatusIndicator { Id = 1, Image = "status.ready.jpg" };
+    public static readonly StatusIndicator Paused   = new StatusIndicator { Id = 2, Image = "status.paused.jpg" };
+    public static readonly StatusIndicator Offline  = new StatusIndicator { Id = 3, Image = "status.offline.jpg" };
+
+    #region Enumeration Implementation
+
+    private StatusIndicator() { }
+
+    public int Id { get; set; }
+    public string Image { get; set; }
+
+    public static explicit operator int( StatusIndicator value )
+    {
+        return value.Id;
+    }
+
+    #endregion Enumeration Implementation
+}</pre>
+<p>In this implementation I am not using an enum at all. It has been replaced with a struct. In order to get the struct to act like an enum, I added an explicit conversion operator which return the Id property of the struct. This allows the GetPausedId() test to pass. In fact, the explicit type conversion in the test isn’t needed, the operator int() can be made implicit, but I felt that it was better to maintain compatibility rather than change behavior at this point.</p>
+<p>Since this is a struct, I can add as many properties as I need. And it’s a simple process to add a new value to the enumeration.</p>
+<p>After putting this all together, I am torn between the last two implementations. I like the .Net feel to the Attribute based implementation, but for high performance applications the reflection bothers me. However, for the struct based implementation, I like the improved maintenance story and lack of reflection, however the fact that is no longer a true enum is a little un-.Net like.</p>
+

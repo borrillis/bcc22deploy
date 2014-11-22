@@ -1,0 +1,14 @@
+---
+layout: 'default'
+---
+
+<!-- Example row of columns -->
+<div class="row">
+	<div class="span12" id="layout-content">
+		<div>
+			<div class="zone zone-content">
+				<%- @content %>
+            </div>
+        </div>
+	</div>		
+</div>

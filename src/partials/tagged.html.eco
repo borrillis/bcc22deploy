@@ -1,0 +1,3 @@
+<% @document.title = @document.tag + ' Posts' %>
+<br/>  
+<%- @partial('abstract-list', { collection: @getCollection('html').findAll({tags: $has: @document.tag},[date:-1]) }) %>

@@ -1,0 +1,8 @@
+---
+layout: 'one-column'
+---
+
+<article id="page" class="page content-item">
+	<header><h1><%= @document.title %></h1></header>
+	<div class="page-content" style="font-size:14pt;"><%- @content %></div>
+</article>

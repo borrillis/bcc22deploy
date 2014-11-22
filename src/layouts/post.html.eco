@@ -1,0 +1,4 @@
+```
+layout: 'two-column'
+```
+<%- @partial('post', {title: @document.title, url: @document.url, tags: @document.tags, date: @document.date, content: @document.contentRenderedWithoutLayouts, individualPost: true }) %>

@@ -1,0 +1,180 @@
+---
+layout: post
+title: APIMASH: The StackExchange Starter Kit
+tags: ['APIMASH', 'StackExchange', 'API', 'Json.Net', 'C#' ] 
+date: 6/6/2013 2:06:00 PM
+draft: false
+---
+
+<h4><a name="description" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#description"></a>Description</h4>
+<p>The StackExchange Starter Kit is a XAML/C# Windows 8 app based on the Blank Template that demonstrates calling the StackExchange REST API's. The JSON payload for Questions, Answers, Comments, Users is deserialized into a set of C# classes that define the Data Model. That data then is selectively copied into the View Model for binding to WinRT XAML controls. You can use the breadth and detail of the discussion information available through the StackExchange API to create mashups, visualizations and other applications that will provide an added dimension of user experience for the answer seeker.</p>
+<p><a href="https://raw.github.com/apimash/StarterKits/master/APIMASH_StackExchange_StarterKit/StackExchangeScreenshot.png"><img width="640" height="360" style="border-width: 0px; padding-top: 0px; padding-right: 0px; padding-left: 0px; background-image: none;" alt="alt text" src="https://raw.github.com/apimash/StarterKits/master/Windows%20Starter%20Kits/APIMASH_StackExchange_StarterKit/StackExchangeScreenshot.png" /></a></p>
+<h4><a name="features" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#features"></a>Features</h4>
+<ul>
+<li>Invokes the <a href="http://api.stackexchange.com/">StackExchange REST API</a></li>
+<li>Demonstrates how to deserialize compressed JSON to C# and bind to WinRT XAML Controls</li>
+<li>Provides a baseline for a Windows 8 Store App</li>
+</ul>
+<h4><a name="requirements" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#requirements"></a>Requirements</h4>
+<ul>
+<li>Windows 8</li>
+<li>Visual Studio 2012 Express for Windows 8 or higher</li>
+<li><a href="https://json.codeplex.com/">JSON.NET from Newtonsoft</a></li>
+<li><a href="http://htmlagilitypack.codeplex.com/">HTML Agility Pack</a></li>
+</ul>
+<h4><a name="setup" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#setup"></a>Setup</h4>
+<ul>
+<li><a href="http://apimash.github.io/StarterKits">Download the Starter Kit Zip Portfolio</a></li>
+<li>Open the Solution in Visual Studio</li>
+<li>Compile and Run</li>
+</ul>
+<h4><a name="customization" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#customization"></a>Customization</h4>
+<p>The StackExchange API, one a scale of 1 to 10, where 1 is simple and 10 is complex, is an 9 :). StackExchange provides a rich set of API collections each with several API's and methods that give you access to Questions, Answers, Comments, Users, and Tags that can be used together or with other API's to create compelling apps.</p>
+<p>StackExchange provides these 4 API collections:</p>
+<ul>
+<li>Per-Site API's</li>
+<li>Network API's</li>
+</ul>
+<p>The StackExchange Starter Kit uses the Question API's:</p>
+<p>The Starter Kit starts by calling the <strong><em>questions</em></strong> method of the API to retrieve a list of questions. [*See Line 81 in the <em>MainPage.Xaml.cs</em> file*].</p>
+<p>You can customize the initial call by modifying line 81 in <em>MainPage.Xaml.cs</em>.</p>
+<p>To experiment further you can look at the additional capabilities of the Stack Exchange API's.</p>
+<h4><a name="stack-exchange-api-v20" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#stack-exchange-api-v20"></a>Stack Exchange API v2.0</h4>
+<p>This is the documentation for the v2.0 <strong>read-only</strong> (with optional <a href="http://api.stackexchange.com/docs/authentication">authentication</a>) Stack Exchange API. If you have additional questions, or believe you have encountered a bug, don't hesitate to post a question on <a href="http://stackapps.com/">Stack Apps</a>.</p>
+<p>If your application is in a runnable state (even a beta one), Stack Apps is also the place to <a href="http://stackapps.com/questions/7/how-to-list-your-application-library-wrapper-here">list it</a>.</p>
+<h4><a name="general" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#general"></a>General</h4>
+<p>Applications should be registered on <a href="http://stackapps.com/apps/oauth/register">Stack Apps</a> to get a request key. Request keys grant more requests per day, and are necessary for using access_tokens created via <a href="http://api.stackexchange.com/docs/authentication">authentication</a>.</p>
+<p>All API responses are <a href="http://en.wikipedia.org/wiki/JSON">JSON</a>, we do support <a href="http://en.wikipedia.org/wiki/JSONP">JSONP</a> with the <code>callback</code> query parameter. Every response in the API is returned in a common <a href="http://api.stackexchange.com/docs/wrapper">"wrapper" object</a>, for easier and more consistent parsing.</p>
+<p>Additionally, all API responses are compressed. The <code>Content-Encoding</code> header is always set, but some proxies will strip this out. The proper way to decode API responses can be found <a href="http://api.stackexchange.com/docs/compression">here</a>.</p>
+<p>API usage is subject to a <a href="http://api.stackexchange.com/docs/throttle">number of throttles</a>. In general, applications should strive to make as few requests as possible to satisfy their function.</p>
+<p>API responses are heavily cached. Polling for changes should be done sparingly in any case, and polling at a rate faster than once a minute (for semantically identical requests) is considered abusive.</p>
+<p>Developers can trim API responses down to just the fields they are interested in using <a href="http://api.stackexchange.com/docs/filters">custom filters</a>. Many types have fields that are not normally returned (question bodies, for example) that can likewise be requested via a custom filter.</p>
+<p>There are a few methods which require that the application be acting on behalf of a user in order to be invoked. For authentication purposes, the Stack Exchange API <a href="http://api.stackexchange.com/docs/authentication">implements OAuth 2.0</a> (templated on Facebook's implementation in pursuit of developer familiarity).</p>
+<p>A number of methods in the Stack Exchange API accept dates as parameters and return dates as properties, the format of these dates is <a href="http://api.stackexchange.com/docs/dates">consistent and documented</a>. The cliff-notes version is, all dates in the Stack Exchange API are in <a href="http://en.wikipedia.org/wiki/Unix_time">unix epoch time</a>.</p>
+<p>Unless otherwise noted, the maximum size of any page is <code>100</code>, any <code>{ids}</code> parameter likewise is capped at <code>100</code> elements, all indexes start at 1.</p>
+<p>If a parameter name is plural it accepts <a href="http://api.stackexchange.com/docs/vectors">vectorized requests</a>, otherwise a single value may be passed. Compare <a href="http://api.stackexchange.com/docs/user-inbox">users/{id}/inbox</a> and <a href="http://api.stackexchange.com/docs/users-by-ids">/users/{ids}</a>.</p>
+<p>It is possible to compose <a href="http://api.stackexchange.com/docs/min-max">reasonably complex queries</a> against the live Stack Exchange sites using the <code>min</code>, <code>max</code>, <code>fromdate</code>, <code>todate</code>, and <code>sort</code> parameters. Most, but not all, methods accept some or all of these parameters, the documentation for individual methods will highlight which do. Most methods also have a common set of <a href="http://api.stackexchange.com/docs/paging">paging parameters</a>.</p>
+<h4><a name="per-site-methods" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#per-site-methods"></a>Per-Site Methods</h4>
+<p>Each of these methods operates on a single site at a time, identified by the <code>site</code> parameter. This parameter can be the full domain name (ie. "stackoverflow.com"), or a short form identified by <code>api_site_parameter</code> on the <a href="http://api.stackexchange.com/docs/types/site">site object</a>.</p>
+<h5><a name="answers" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#answers"></a>Answers</h5>
+<p><a href="http://api.stackexchange.com/docs/answers">/answers</a> Get all answers on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/answers-by-ids">/answers/{ids}</a> Get answers identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/comments-on-answers">/answers/{ids}/comments</a> Get comments on the answers identified by a set of ids.</p>
+<h5><a name="badges" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#badges"></a>Badges</h5>
+<p><a href="http://api.stackexchange.com/docs/badges">/badges</a> Get all badges on the site, in alphabetical order.</p>
+<p><a href="http://api.stackexchange.com/docs/badges-by-ids">/badges/{ids}</a> Get the badges identified by ids.</p>
+<p><a href="http://api.stackexchange.com/docs/badges-by-name">/badges/name</a> Get all non-tagged-based badges in alphabetical order.</p>
+<p><a href="http://api.stackexchange.com/docs/badge-recipients">/badges/recipients</a> Get badges recently awarded on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/badge-recipients-by-ids">/badges/{ids}/recipients</a> Get the recent recipients of the given badges.</p>
+<p><a href="http://api.stackexchange.com/docs/badges-by-tag">/badges/tags</a> Get all tagged-based badges in alphabetical order.</p>
+<h5><a name="comments" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#comments"></a>Comments</h5>
+<p><a href="http://api.stackexchange.com/docs/comments">/comments</a> Get all comments on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/comments-by-ids">/comments/{ids}</a> Get comments identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/delete-comment">/comments/{id}/delete</a> Delete a comment identified by its id. auth required</p>
+<p><a href="http://api.stackexchange.com/docs/edit-comment">/comments/{id}/edit</a> Edit a comment identified by its id. auth required</p>
+<h5><a name="events" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#events"></a>Events</h5>
+<p><a href="http://api.stackexchange.com/docs/events">/events</a> Get recent events that have occurred on the site. Effectively a stream of new users and content. auth required</p>
+<h5><a name="info" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#info"></a>Info</h5>
+<p><a href="http://api.stackexchange.com/docs/info">/info</a> Get information about the entire site.</p>
+<h5><a name="posts" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#posts"></a>Posts</h5>
+<p><a href="http://api.stackexchange.com/docs/posts">/posts</a> Get all posts (questions and answers) in the system.</p>
+<p><a href="http://api.stackexchange.com/docs/posts-by-ids">/posts/{ids}</a> Get all posts identified by a set of ids. Useful for when the type of post (question or answer) is not known.</p>
+<p><a href="http://api.stackexchange.com/docs/comments-on-posts">/posts/{ids}/comments</a> Get comments on the posts (question or answer) identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/create-comment">/posts/{id}/comments/add</a> Create a new comment on the post identified by id. auth required</p>
+<p><a href="http://api.stackexchange.com/docs/revisions-by-ids">/posts/{ids}/revisions</a> Get revisions on the set of posts in ids.</p>
+<p><a href="http://api.stackexchange.com/docs/posts-on-suggested-edits">/posts/{ids}/suggested-edits</a> Get suggested edits on the set of posts in ids.</p>
+<h5><a name="privileges" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#privileges"></a>Privileges</h5>
+<p><a href="http://api.stackexchange.com/docs/privileges">/privileges</a> Get all the privileges available on the site.</p>
+<h5><a name="questions" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#questions"></a>Questions</h5>
+<p><a href="http://api.stackexchange.com/docs/questions">/questions</a> Get all questions on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/questions-by-ids">/questions/{ids}</a> Get the questions identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/answers-on-questions">/questions/{ids}/answers</a> Get the answers to the questions identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/comments-on-questions">/questions/{ids}/comments</a> Get the comments on the questions identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/linked-questions">/questions/{ids}/linked</a> Get the questions that link to the questions identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/related-questions">/questions/{ids}/related</a> Get the questions that are related to the questions identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/questions-timeline">/questions/{ids}/timeline</a> Get the timelines of the questions identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/featured-questions">/questions/featured</a> Get all questions on the site with active bounties.</p>
+<p><a href="http://api.stackexchange.com/docs/unanswered-questions">/questions/unanswered</a> Get all questions the site considers unanswered.</p>
+<p><a href="http://api.stackexchange.com/docs/no-answer-questions">/questions/no-answers</a> Get all questions on the site with <strong>no</strong> answers.</p>
+<h5><a name="revisions" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#revisions"></a>Revisions</h5>
+<p><a href="http://api.stackexchange.com/docs/revisions-by-guids">/revisions/{ids}</a> Get all revisions identified by a set of ids.</p>
+<h5><a name="search" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#search"></a>Search</h5>
+<p><a href="http://api.stackexchange.com/docs/search">/search</a> Search the site for questions meeting certain criteria.</p>
+<p><a href="http://api.stackexchange.com/docs/advanced-search">/search/advanced</a> Search the site for questions using most of the on-site search options.</p>
+<p><a href="http://api.stackexchange.com/docs/similar">/similar</a> Search the site based on similarity to a title.</p>
+<h5><a name="suggested-edits" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#suggested-edits"></a>Suggested Edits</h5>
+<p><a href="http://api.stackexchange.com/docs/suggested-edits">/suggested-edits</a> Get all the suggested edits on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/suggested-edits-by-ids">/suggested-edits/{ids}</a> Get the suggested edits identified by a set of ids.</p>
+<h5><a name="tags" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#tags"></a>Tags</h5>
+<p><a href="http://api.stackexchange.com/docs/tags">/tags</a> Get the tags on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/tags-by-name">/tags/{tags}/info</a> Get tags on the site by their names.</p>
+<p><a href="http://api.stackexchange.com/docs/moderator-only-tags">/tags/moderator-only</a> Get the tags on the site that only moderators can use.</p>
+<p><a href="http://api.stackexchange.com/docs/required-tags">/tags/required</a> Get the tags on the site that fulfill required tag constraints.</p>
+<p><a href="http://api.stackexchange.com/docs/tag-synonyms">/tags/synonyms</a> Get all the tag synonyms on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/faqs-by-tags">/tags/{tags}/faq</a> Get frequently asked questions in a set of tags.</p>
+<p><a href="http://api.stackexchange.com/docs/related-tags">/tags/{tags}/related</a> Get related tags, based on common tag pairings.</p>
+<p><a href="http://api.stackexchange.com/docs/synonyms-by-tags">/tags/{tags}/synonyms</a> Get the synonyms for a specific set of tags.</p>
+<p><a href="http://api.stackexchange.com/docs/top-answerers-on-tags">/tags/{tag}/top-answerers/{period}</a> Get the top answer posters in a specific tag, either in the last month or for all time.</p>
+<p><a href="http://api.stackexchange.com/docs/top-askers-on-tags">/tags/{tag}/top-askers/{period}</a> Get the top question askers in a specific tag, either in the last month or for all time.</p>
+<p><a href="http://api.stackexchange.com/docs/wikis-by-tags">/tags/{tags}/wikis</a> Get the wiki entries for a set of tags.</p>
+<h5><a name="users" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#users"></a>Users</h5>
+<p>All user methods that take an <code>{ids}</code> parameter have a <code>/me</code> equivalent method that takes an <code>access_token</code> instead. These methods are provided for developer convenience, with the exception of plain <a href="http://api.stackexchange.com/docs/me">/me</a>, which is actually necessary for discovering which user <a href="http://api.stackexchange.com/docs/authentication">authenticated</a> to an application.</p>
+<p><a href="http://api.stackexchange.com/docs/users">/users</a> Get all users on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/users-by-ids">/users/{ids}</a> <a href="http://api.stackexchange.com/docs/me">/me</a> Get the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/answers-on-users">/users/{ids}/answers</a> <a href="http://api.stackexchange.com/docs/me-answers">/me/answers</a> Get the answers posted by the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/badges-on-users">/users/{ids}/badges</a> <a href="http://api.stackexchange.com/docs/me-badges">/me/badges</a> Get the badges earned by the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/comments-on-users">/users/{ids}/comments</a> <a href="http://api.stackexchange.com/docs/me-comments">/me/comments</a> Get the comments posted by the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/comments-by-users-to-user">/users/{ids}/comments/{toid}</a> <a href="http://api.stackexchange.com/docs/me-comments-to">/me/comments/{toid}</a> Get the comments posted by a set of users in reply to another user.</p>
+<p><a href="http://api.stackexchange.com/docs/favorites-on-users">/users/{ids}/favorites</a> <a href="http://api.stackexchange.com/docs/me-favorites">/me/favorites</a> Get the questions favorited by users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/mentions-on-users">/users/{ids}/mentioned</a> <a href="http://api.stackexchange.com/docs/me-mentioned">/me/mentioned</a> Get the comments that mention one of the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/merge-history">/users/{ids}/merges</a> <a href="http://api.stackexchange.com/docs/me-merge-history">/me/merges</a> Get the merges a user's accounts has undergone.</p>
+<p><a href="http://api.stackexchange.com/docs/user-notifications">/users/{id}/notifications</a> <a href="http://api.stackexchange.com/docs/me-notifications">/me/notifications</a> Get a user's notifications.</p>
+<p><a href="http://api.stackexchange.com/docs/user-unread-notifications">/users/{id}/notifications/unread</a> <a href="http://api.stackexchange.com/docs/me-unread-notifications">/me/notifications/unread</a> Get a user's unread notifications.</p>
+<p><a href="http://api.stackexchange.com/docs/privileges-on-users">/users/{id}/privileges</a> <a href="http://api.stackexchange.com/docs/me-privileges">/me/privileges</a> Get the privileges the given user has on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/questions-on-users">/users/{ids}/questions</a> <a href="http://api.stackexchange.com/docs/me-questions">/me/questions</a> Get the questions asked by the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/featured-questions-on-users">/users/{ids}/questions/featured</a> <a href="http://api.stackexchange.com/docs/me-featured-questions">/me/questions/featured</a> Get the questions on which a set of users, have active bounties.</p>
+<p><a href="http://api.stackexchange.com/docs/no-answer-questions-on-users">/users/{ids}/questions/no-answers</a> <a href="http://api.stackexchange.com/docs/me-no-answer-questions">/me/questions/no-answers</a> Get the questions asked by a set of users, which have <strong>no</strong> answers.</p>
+<p><a href="http://api.stackexchange.com/docs/unaccepted-questions-on-users">/users/{ids}/questions/unaccepted</a> <a href="http://api.stackexchange.com/docs/me-unaccepted-questions">/me/questions/unaccepted</a> Get the questions asked by a set of users, which have at least one answer but no accepted answer.</p>
+<p><a href="http://api.stackexchange.com/docs/unanswered-questions-on-users">/users/{ids}/questions/unanswered</a> <a href="http://api.stackexchange.com/docs/me-unanswered-questions">/me/questions/unanswered</a> Get the questions asked by a set of users, which are not considered to be adequately answered.</p>
+<p><a href="http://api.stackexchange.com/docs/reputation-on-users">/users/{ids}/reputation</a> <a href="http://api.stackexchange.com/docs/me-reputation">/me/reputation</a> Get a subset of the reputation changes experienced by the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/reputation-history">/users/{ids}/reputation-history</a> <a href="http://api.stackexchange.com/docs/me-reputation-history">/me/reputation-history</a> Get a history of a user's reputation, excluding private events.</p>
+<p><a href="http://api.stackexchange.com/docs/full-reputation-history">/users/{ids}/reputation-history/full</a> <a href="http://api.stackexchange.com/docs/me-full-reputation-history">/me/reputation-history/full</a> Get a full history of a user's reputation. auth required</p>
+<p><a href="http://api.stackexchange.com/docs/suggested-edits-on-users">/users/{ids}/suggested-edits</a> <a href="http://api.stackexchange.com/docs/me-suggested-edits">/me/suggested-edits</a> Get the suggested edits provided by users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/tags-on-users">/users/{ids}/tags</a> <a href="http://api.stackexchange.com/docs/me-tags">/me/tags</a> Get the tags that the users (identified by a set of ids) have been active in.</p>
+<p><a href="http://api.stackexchange.com/docs/top-user-answers-in-tags">/users/{id}/tags/{tags}/top-answers</a> <a href="http://api.stackexchange.com/docs/me-tags-top-answers">/me/tags/{tags}/top-answers</a> Get the top answers a user has posted on questions with a set of tags.</p>
+<p><a href="http://api.stackexchange.com/docs/top-user-questions-in-tags">/users/{id}/tags/{tags}/top-questions</a> <a href="http://api.stackexchange.com/docs/me-tags-top-questions">/me/tags/{tags}/top-questions</a> Get the top questions a user has posted with a set of tags.</p>
+<p><a href="http://api.stackexchange.com/docs/timeline-on-users">/users/{ids}/timeline</a> <a href="http://api.stackexchange.com/docs/me-timeline">/me/timeline</a> Get a subset of the actions of that have been taken by the users identified by a set of ids.</p>
+<p><a href="http://api.stackexchange.com/docs/top-answer-tags-on-users">/users/{id}/top-answer-tags</a> <a href="http://api.stackexchange.com/docs/me-top-answer-tags">/me/top-answer-tags</a> Get the top tags (by score) a single user has posted answers in.</p>
+<p><a href="http://api.stackexchange.com/docs/top-question-tags-on-users">/users/{id}/top-question-tags</a> <a href="http://api.stackexchange.com/docs/me-top-question-tags">/me/top-question-tags</a> Get the top tags (by score) a single user has asked questions in.</p>
+<p><a href="http://api.stackexchange.com/docs/write-permissions">/users/{ids}/write-permissions</a> <a href="http://api.stackexchange.com/docs/me-write-permissions">/me/write-permissions</a> Get the write access a user has via the API.</p>
+<p><a href="http://api.stackexchange.com/docs/moderators">/users/moderators</a> Get the users who have moderation powers on the site.</p>
+<p><a href="http://api.stackexchange.com/docs/elected-moderators">/users/moderators/elected</a> Get the users who are active moderators who have also won a moderator election.</p>
+<p><a href="http://api.stackexchange.com/docs/user-inbox">/users/{id}/inbox</a> <a href="http://api.stackexchange.com/docs/me-inbox">/me/inbox</a> Get a user's inbox. auth required</p>
+<p><a href="http://api.stackexchange.com/docs/user-unread-inbox">/users/{id}/inbox/unread</a> <a href="http://api.stackexchange.com/docs/me-unread-inbox">/me/inbox/unread</a> Get the unread items in a user's inbox. auth required</p>
+<h4><a name="network-methods" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#network-methods"></a>Network Methods</h4>
+<p>These methods return data across the entire Stack Exchange network of sites. Accordingly, you do not pass a site parameter to them.</p>
+<h5><a name="access-tokens" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#access-tokens"></a>Access Tokens</h5>
+<p><a href="http://api.stackexchange.com/docs/invalidate-access-tokens">/access-tokens/{accessTokens}/invalidate</a> Allows an application to dispose of <code>access_tokens</code> when it is done with them.</p>
+<p><a href="http://api.stackexchange.com/docs/read-access-tokens">/access-tokens/{accessTokens}</a> Allows an application to inspect <code>access_tokens</code> it has, useful for debugging.</p>
+<h5><a name="applications" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#applications"></a>Applications</h5>
+<p><a href="http://api.stackexchange.com/docs/application-de-authenticate">/apps/{accessTokens}/de-authenticate</a> Allows an application to de-authorize itself for a set of users.</p>
+<h5><a name="errors" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#errors"></a>Errors</h5>
+<p><a href="http://api.stackexchange.com/docs/errors">/errors</a> Get descriptions of all the errors that the API could return.</p>
+<p><a href="http://api.stackexchange.com/docs/simulate-error">/errors/{id}</a> Simulate an API error for testing purposes.</p>
+<h5><a name="filters" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#filters"></a>Filters</h5>
+<p><a href="http://api.stackexchange.com/docs/create-filter">/filters/create</a> Create a new <a href="http://api.stackexchange.com/docs/filters">filter</a>.</p>
+<p><a href="http://api.stackexchange.com/docs/read-filter">/filters/{filters}</a> Decode a set of filters, useful for debugging purposes.</p>
+<h5><a name="inbox" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#inbox"></a>Inbox</h5>
+<p><a href="http://api.stackexchange.com/docs/inbox">/inbox</a> Get a user's inbox, outside of the context of a site. auth required</p>
+<p><a href="http://api.stackexchange.com/docs/inbox-unread">/inbox/unread</a> Get the unread items in a user's inbox, outside of the context of a site. auth required</p>
+<h5><a name="notifications" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#notifications"></a>Notifications</h5>
+<p><a href="http://api.stackexchange.com/docs/notifications">/notifications</a> Get a user's notifications, outside of the context of a site. auth required</p>
+<p><a href="http://api.stackexchange.com/docs/unread-notifications">/notifications/unread</a> Get a user's unread notifications, outside of the context of a site. auth required</p>
+<h5><a name="sites" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#sites"></a>Sites</h5>
+<p><a href="http://api.stackexchange.com/docs/sites">/sites</a> Get all the sites in the Stack Exchange network.</p>
+<h5><a name="users-1" href="https://github.com/apimash/StarterKits/tree/master/APIMASH_StackExchange_StarterKit#users-1"></a>Users</h5>
+<p><a href="http://api.stackexchange.com/docs/associated-users">/users/{ids}/associated</a> <a href="http://api.stackexchange.com/docs/me-associated-users">/me/associated</a> Get a user's associated accounts.</p>
+<p>You can also experiment with adding in the Editorial or Dealer API's to add color commentary and availability information.</p>
+<h2>Conclusion</h2>
+<p>Building compelling apps requires compelling data. Open Data API&rsquo;s are an excellent way to gather and mashup new experiences for end users. The Edmunds API provides a rich set of data on cars of all makes and models. Take advantage of the data and peoples love of cars to create the next great app for Windows.</p>
+

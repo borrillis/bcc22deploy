@@ -1,0 +1,643 @@
+﻿```
+layout: post
+title: Getting Started Guide using OGRE 3D on Windows 8.1
+tags: ['Game Development', 'Graphics', '3D', 'OGRE 3D', 'Windows 8.1']
+date: 3/16/2014 12:54:29 PM 
+draft: false
+```
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/sdk_logo_2.png"><img title="sdk_logo" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; float: left; padding-top: 0px; padding-left: 0px; margin: 0px 5px 0px 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="sdk_logo" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/sdk_logo_thumb.png" width="264" align="left" height="136"></a><a href="http://ogre3d.org" target="_blank">OGRE</a> (<strong>O</strong>bject-Oriented <strong>G</strong>raphics <strong>R</strong>endering <strong>E</strong>ngine) is a scene-oriented, flexible 3D engine written in C++ designed to make it easier and more intuitive for developers to produce applications utilizing hardware-accelerated 3D graphics. The class library abstracts all the details of using the underlying system libraries like Direct3D and OpenGL and provides an interface based on world objects and other intuitive classes. In recent releases OGRE has added support for Windows 8.1 and Windows Phone 8. Since the support is fairly new, getting OGRE ready for building games for these platforms can be a little tricksy, this guide is intended to reduce the friction of getting a game started using OGRE.</p> <p>By following this guide, you will be able to start building your next game targeting the Windows 8.1. A follow-up article will cover Windows Phone 8. The best method for using OGRE is to build it from source and then build your projects on top of that build. A primary benefit of compiling from source is that you can keep updated with the latest bug fixes. This also allows you to step into the OGRE source while debugging, if you need to, in order to solve the trickier rendering problems.</p> <h2>Getting Ready</h2> <p>As this guide is targeting Windows 8.1, you’ll need to have a working installation of Windows 8.1 and Visual Studio 2013 . If you are using the Express editions of Visual Studio, make sure you are using the Visual Studio Express for Windows 8, and not Visual Studio Express for Desktop.</p> <p>To get started you’ll need to have a couple of additional pieces of software installed. These will allow you to download and configure the OGRE source tree to compile for Windows 8.1. use the links below to download and install the additional software.</p> <p><a title="A free Mercurial and Git client for Windows or Mac" href="https://www.atlassian.com/software/sourcetree/overview" target="_blank">SourceTree</a> - an <a title="Mercurial is a free, distributed source control management tool." href="http://mercurial.selenic.com/" target="_blank">Mercurial</a> source control client.</p> <p><a href="http://www.cmake.org/files/v2.8/cmake-2.8.12.2-win32-x86.exe" target="_blank">CMake</a> - a cross-platform, open-source build system.</p> <p>Sourcetree is not a requirement if you already have a Mercurial client installed, however, even if you do, I suggest you give SourceTree a look. It has to be one of the best graphical Git/Mercurial clients on the market today. It’s free to boot!</p> <p>CMake is required by OGRE to configure the source tree for building with either MSBuild or the Visual Studio IDE.</p> <h2>Prepare a sandbox environment </h2> <p>When working with large complex systems like OGRE, I like to keep it sandboxed so there is little chance of messing up the rest of my system, It also makes for easier cleanup. There are two simple steps to creating out sandbox:</p> <ol> <li>Create a new folder<br>I keep all my projects in a folder named ‘<font face="Consolas">Projects</font>‘ under my <font face="Consolas">C:\</font> drive. For my sandbox, I am creating a folder called <font face="Consolas">OGRE19</font> under the <font face="Consolas">Projects</font> folder. This will serve as the root of my sandbox.  <li>Assign a new drive letter<br>While this step isn’t absolutely necessary, it does make setting up paths easier and shorter. I will be using D for the drive letter of my OGRE sandbox. The command you use to assign a drive letter to a folder is this: <br> <div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:8d435910-1a56-4fbe-b389-cf8a47e7072d" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: bash;">subst D: C:\Projects\OGRE19</pre></div><br>open a command prompt and type in the command, followed by <font face="Consolas">Enter</font> to assign the drive. 
+<li>While you have the command window open enter <br>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:f9d0a09e-7573-4e11-a0d1-8aaf2f4d3fbb" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: bash;">mkdir D:\WIN81</pre></div>&nbsp;<br>to create a folder we will use to hold our build files. We use a separate folder here so contain the dependencies and build files, which include the solution files, project files, special headers and all build outputs, because they are platform specific. In a later post, we will add a build folder for Windows Phone, but leverage the same source repository, and then you’ll see how brilliant this really is.</li></ol>
+<h2>Building the Dependencies</h2>
+<p>In order to build OGRE we must first build the projects that it depends on. Fortunately for us this is a fairly simple and painless exercise. Follow the steps below to build the dependency projects.</p>
+<h4>Clone the Dependency repository</h4>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_2.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; float: left; padding-top: 0px; padding-left: 0px; margin: 0px 5px 0px 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb.png" width="244" align="left" height="64"></a>Open SourceTree and click the Clone / New toolbar button to open the ‘Clone / Add / Create Repository’ dialog box. In the ‘Sourcepath / Url’ field enter the text <font face="Consolas">“https://bitbucket.org/eugene_gff/ogre-dependencies-winrt</font>”. For the ‘Destination Path’ enter “D:\WIN81\Dependencies”. If you did not use D, because it was already in use, for example, make sure you use the drive letter you assigned to the sandbox.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_4.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_1.png" width="644" height="308"></a></p>
+<p>When you click clone, SourceTree will begin to clone (copy) the source locally. </p>
+<h4>Build the Dependencies</h4>
+<p>When that completes, open a File Explorer window and browse to ‘D:\WIN81\Dependencies\src\’ and open the ’OgreDependencies.VS2013.WinRT.sln’ file. Select <font face="Consolas">Build</font>, then <font face="Consolas">Batch Build…</font>, click <font face="Consolas">Select All</font>, finally click <font face="Consolas">Build</font> and everything should complete successfully. </p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_6.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_2.png" width="644" height="373"></a></p>
+<p>This will take a few minutes to complete even on a fast machine, so be patient. Once the build is complete, you can find all the outputs (.lib) files in the ‘D:\WIN8\Dependencies\lib’, e.g ’D:\WIN81\Dependencies\lib\x64\Debug\FreeImaged.lib’.</p>
+<p>Congratulations, you have completed part one of the quest. But do not bask in the glory of your success for too long, seasoned warrior, for more adventures await you.</p>
+<p>Ok, so maybe reading “<a href="http://www.amazon.com/Ready-Player-One-Ernest-Cline-ebook/dp/B004J4WKUQ/ref=sr_1_1_bnp_1_kin" target="_blank">Ready Player One</a>” in one sitting was a little too much.</p>
+<h2>Building OGRE</h2>
+<p>Now that the dependencies have been built we can focus on building the core libraries of OGRE. OGRE can be built as either static libs or as DLL’s. To make things simpler at runtime, we will be building OGRE as static libraries.</p>
+<h4>Clone the OGRE repository</h4>
+<p>Open SourceTree again in order to clone the OGRE repository. Click the Clone/ New toolbar button again to open the ‘Clone / Add / Create Repository’ dialog box. This time use ‘https://bitbucket.org/sinbad/ogre’‘ for the Sourcepath / Url’ field and ‘D:\src’ for the ‘Destination Path’. Click the <font face="Consolas">Clone</font> button to begin the download of the OGRE source.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_8.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_3.png" width="644" height="308"></a></p>
+<h4>Configure the Build</h4>
+<blockquote class="highlight">
+<p><strong>TIP:</strong> The next few steps are where things can go wrong badly. However, it’s also easy to clean up and start again from this point forward. Just delete the D:\WIN81\build folder, which we are about to create, and start again. </p></blockquote>
+<p>This is the part where we need to use CMake. As I stated earlier, CMake is a build system, and the OGRE project is using it to tailor the solution and project files exactly as we need them for each platform, since there can be a lot of variation in how to build for Windows vs MacOS vs Linux.</p>
+<p><img style="float: left; margin: 0px 5px 0px 0px; display: inline" src="http://www.networkworld.com/community/files/user2831/Win8-WindowsKey.jpg" width="43" align="left" height="32">Tap your Windows key to launch the start screen, and then type ”<font face="Consolas">cmake-gui</font>” to search for the graphical interface for CMake, which I find a lot easier to use.<br clear="all"></p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_10.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; float: right; padding-top: 0px; padding-left: 0px; margin: 0px 0px 0px 5px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_4.png" width="364" align="right" height="346"></a></p>
+<p>In the cmake-gui windows, enter “D:\src” for the ‘Where is the source code’ field, and ‘'D:\WIN81\build” for the ‘Where to build the binaries’ field. Two-thirds of the way down the windows you will find a couple of buttons ‘Configure’ and ‘Generate’. Click the ‘Configure’ button now to allow CMake figure out what else it needs from you.</p>
+<p>CMake will scan your system looking for all the pieces it needs to properly configure your build folders to compile OGRE for the selected platforms. The bottom window dispays the output of the various test and searches that CMake is doing.<br clear="all"></p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_12.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; float: left; padding-top: 0px; padding-left: 0px; margin: 0px 5px 0px 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_5.png" width="244" align="left" height="190"></a>It will first ask you to create the build folder, say yes and allow it. The next dialog to be displayed is to select which IDE we will be using to edit and compile the OGRE source code in. If you drop the selection down, you can see the list of supported IDE’s. Since we are targeting Windows 8.1, we need to use Visual Studio 2013, which is not available in this list, so leave he selection at ‘Visual Studio 12’ and when we pen the project in Visual Studio 2013, we can then retarget the files to Windows 8.1. Leave the default compiler selection at ‘Use default native compilers’.<br clear="all">CMake will now check your system for any missing components, folders, SDK’s etc, and warn you if you are missing any of them. Do not be concerned about the amount of red lines in the display. CMake displays new or changed entries in red.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_16.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_7.png" width="509" height="484"></a></p>
+<p>Near the middle of the list you’ll find an entry called ‘OGRE_DEPENDENCIES_DIR’ and more than likely it will be blank. We will need to tell CMake where to find the libraries we just built. Select that entry and either type, or browse for “D:\WIN81\Dependencies\”. Click configure again, since we made changes to the settings. Now that all the red is gone, find ‘OGRE_BUILD_PLATFORM_WINRT’ and ‘OGRE_STATIC’ and check the box to the right. Last find ‘OGRE_BUILD_RENDERSYSTEM_GL’ and uncheck the box.</p>
+<p>Click ‘Configure’, the ‘Configure’ again as it added a few components, and then ‘Generate’ to complete this step.</p>
+<h4>Build OGRE libraries</h4>
+<p>Open Visual Studio 2013, then open the “D:\WIN81\build\ogre.sln” solution. Visual Studio will prompt you to upgrade the projects to target windows 8.1, click ‘Ok’ to dismiss the dialog. Before we retarget the projects, we can remove a couple of them since they won’t be needed. </p>
+<p>Remove the “ALL_BUILD”, “INSTALL”, and “PACKAGE” projects, from the solution. Right-Click the project file and select ‘Remove’. Click Ok when prompted to confirm each deletion. If it asks you to save any changes, click ‘No’. </p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_18.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_8.png" width="244" height="22"></a>To retarget the project files to Windows 8.1, Richt-Click on the solution node, and select ‘Retarget Windows Store projects to Windows 8.1’. In the following dialog, check the box to the left of all the projects.</p>
+<blockquote>
+<p><strong>NOTE:</strong> If you try to do this the hard way, you’ll quickly get Carpal Tunnel Syndrome, there are 62 projects in the solution! Instead click on the first one, scroll to the bottom of the list, press and hold Shift whick clicking the last entry. Then when you click a checkbox, they’ll all be selected.</p></blockquote>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_20.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_9.png" width="644" height="461"></a></p>
+<p>Click ‘OK’ to dismiss the dialog and wait for Visual Studio to make the updates.</p>
+<p>There are a few minor changes we need to make before the projects will build successfully. </p>
+<h6>RenderSystem_Direct3D11</h6>
+<p>Right-Click the RenderSystem_Direct3D11 project file and click ‘Properties’. Under ‘Configuration Properties’, then ‘C++’, and then ‘General’ set ‘Consume Windows Runtime Extension’ to “Yes (/ZW)”. Click ‘OK’ to save the change. This is needed because The DirectX11 Render system makes calls into the WinRT system libraries, however CMake is not aware of the setting in order to generate it properly.</p>
+<h6>OgreMeshLodGenerator</h6>
+<p>Rick-Click ‘OgreMeshLodGenerator’ and click ‘Properties’. Under ‘Configuration Properties’, then ‘C++’, and then ‘General’ set ‘Sdl Check’ to ‘No (/sdl-)’.</p>
+<h6>OgreMain</h6>
+<p>In the OgreMain project, open ‘OgreErrorDIalogWinRT.cpp’, and add "<font face="Consolas">#include &lt;iostream&gt;</font>" after the includes.</p>
+<p>Rick-Click ‘OgreMain’ and click ‘Properties’. Under ‘Configuration Properties’, then ‘C++’, and then ‘General’ edit the ‘Additional Include Directories’ and add ‘<font face="Consolas">D:\WIN81\Build\Dependencies\Include</font>’.</p>
+<h6>OgreOverlay</h6>
+<p>Rick-Click ‘OgreOverlay’ and click ‘Properties’. Under ‘Configuration Properties’, then ‘c/C++’, and then ‘General’ edit the ‘Additional Include Directories’ and add ‘<font face="Consolas">D:\WIN81\Build\Dependencies\Include’</font>.</p>
+<h3>And now the Boss Fight!</h3>
+<p>In Visual Studio, click the ‘Build’ menu, followed by ‘’Build Solution’. Now, go find something else to do for about 45 mins.</p>
+<h2>Creating a Test Application</h2>
+<p>Normally when I go through this exercise the first thing I do is configure and build the Samples. However, due to CMake not currently supporting Windows Store project types, the process for building the samples is even more complicated and error prone. Once CMake properly supports Windows Store projects this will get better, until that point I suggest you download the precompiled binaries to run the samples for Windows 8.</p>
+<p>The first step is to open a new instance of Visual Studio 2013. Then create a new Project based on the DirectX Windows Store App project template. You can find this in the ‘New Project’ dialog box under Visual C++/Windows Store. Make sure you don’t select the XAML based DirectX App, I might cover how to use that one in a later post, but for now, we want to use the simple ‘DirectX App’ project template.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_14.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_6.png" width="644" height="446"></a></p>
+<p>I used the name “OgreApp”, feel free to use what ever name you want. You can also put this in any folder that you want, as long as you don’t use the <font face="Consolas">D:\</font> path. the WinRT subsystem does not recognize ‘<font face="Consolas">subst</font>’ drives and deployment will fail. Click “OK” to create the project.</p>
+<p>We will use only Debug mode for the purposes of this introduction, but you will need to make similar changes described below for Release mode.</p>
+<p>Let’s first make some changes to the project configuration so it’s set up correctly to load and run Ogre. Right-Click the OgreApp project and select ‘Properties’. <br>&nbsp;&nbsp;&nbsp; Open Configuration Properties -&gt; C/C++ -&gt;General -&gt; Additional Include Directories and click the “…” to open the editor window. Add the following entries :</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:6df10f1d-d2e8-4c16-a085-ae859e922ee8" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: cpp;">D:\src\include
+D:\src\OgreMain\Include
+D:\WIN81\build\include
+D:\src\Components\RTShaderSystem\include
+D:\src\RenderSystems\Direct3D11\include
+D:\src\PlugIns\OctreeSceneManager\include</pre></div><br>&nbsp;&nbsp;&nbsp; Add “<font face="Consolas">D:\WIN81\build\lib\debug</font>” and “<font face="Consolas">D:\WIN81\Build\Dependencies\lib\x86\Debug</font>” to Configuration Properties -&gt; Linker -&gt; General -&gt; Additional Library Directories<br>&nbsp;&nbsp; Open Configuration Properties -&gt; Linker -&gt; Input -&gt; Additional Dependencies and click the “…” to open the editor window. replace the contents with the entries below: 
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:93a3076d-a986-4ffe-a947-a63a3d9ecc60" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: cpp;">uuid.lib
+dxgi.lib
+dxguid.lib
+d3dcompiler.lib
+d2d1.lib
+d3d11.lib
+ole32.lib
+windowscodecs.lib
+dwrite.lib
+OgreMainStatic_d.lib
+FreeImaged.lib
+freetype2311_d.lib
+zlibd.lib
+zziplibd.lib
+RenderSystem_Direct3D11Static_d.lib
+OgreRTShaderSystemStatic_d.lib
+Plugin_OctreeSceneManagerStatic_d.lib
+%(AdditionalDependencies)</pre></div>
+<p>Now to test these changes, Open App.h and add </p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:43067dc4-cd27-4a56-9720-76549fcf9634" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c;">#include “Ogre.h”</pre></div>at the end of the includes. The project should successful build at this time, if it doesn’t check to make sure you have made the changes above correctly. Run the App in the simulator to verify the deployment and linkages are all correct too. 
+<h3>Creating the OGRE App</h3>
+<p>The next few steps are fairly basic OGRE tutorial type things, I am not going to go into a lot of detail here on how OGRE works, There are some great tutorials on the OGRE wiki that you can read through to see what is going on. </p>
+<p>We are using the RTShaderGenerator component, which generates and compiles shader programs on the fly. This is only available on Windows 8.1, not Windows 8. The RTShaderGenerator was built to help bridge the gap from DirectX 9 which had a Fixed Function Pipeline and DirectX 10 and later which removed it. It is also very handy to create the needed shaders instead of hand coding them early on in your development process.</p>
+<p>To get you’re the started, update the App.h and App.cpp with the listings below. They are fairly well commented so you should be able to follow the program.</p>
+<p>The App is very simple, it will paint the background white, and add a model of the OGRE head in the center of the screen. It’s about as simple as you can get.</p>
+<h3>App.h</h3>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:e85d11c1-d03e-4479-9ca6-17d2710adbd7" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: cpp;">#pragma once
+
+#include "pch.h"
+
+#include "Ogre.h"
+#include "OgreD3D11Plugin.h"
+#include "OgreOctreePlugin.h"
+#include "OgreRTShaderSystem.h"
+
+#include "ShaderGeneratorTechniqueResolverListener.h"
+
+#include &lt;string&gt;
+
+namespace SampleOgreApp
+{
+	// Main entry point for our app. Connects the app with the Windows shell and handles application lifecycle events.
+	ref class App sealed : public Windows::ApplicationModel::Core::IFrameworkView
+	{
+	public:
+		App();
+		virtual ~App();
+
+		// IFrameworkView Methods.
+		virtual void Initialize(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView);
+		virtual void SetWindow(Windows::UI::Core::CoreWindow^ window);
+		virtual void Load(Platform::String^ entryPoint);
+		virtual void Run();
+		virtual void Uninitialize();
+
+	protected:
+		// Application lifecycle event handlers.
+		void OnActivated(Windows::ApplicationModel::Core::CoreApplicationView^ applicationView, Windows::ApplicationModel::Activation::IActivatedEventArgs^ args);
+		void OnSuspending(Platform::Object^ sender, Windows::ApplicationModel::SuspendingEventArgs^ args);
+		void OnResuming(Platform::Object^ sender, Platform::Object^ args);
+
+		// Window event handlers.
+		void OnWindowSizeChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::WindowSizeChangedEventArgs^ args);
+		void OnVisibilityChanged(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::VisibilityChangedEventArgs^ args);
+		void OnWindowClosed(Windows::UI::Core::CoreWindow^ sender, Windows::UI::Core::CoreWindowEventArgs^ args);
+
+		// DisplayInformation event handlers.
+		void OnDpiChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
+		void OnOrientationChanged(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
+		void OnDisplayContentsInvalidated(Windows::Graphics::Display::DisplayInformation^ sender, Platform::Object^ args);
+
+	private:
+		bool m_windowClosed;
+		bool m_windowVisible;
+
+		Ogre::Root* mOgreRoot;
+		Ogre::RenderWindow* mOgreRenderWindow;
+
+		Ogre::D3D11Plugin* mD3D11Plugin;
+		Ogre::OctreePlugin* mOctreePlugin;
+
+		Ogre::RTShader::ShaderGenerator* mShaderGenerator;                       // The Shader generator instance.
+		ShaderGeneratorTechniqueResolverListener* mMaterialMgrListener;          // Shader generator material manager listener.
+
+		void CreateShadersForDefaultMaterialsUsingRTSS();
+
+		std::string ConvertPlatformStringToSTDString(Platform::String^ s);
+		Platform::String^ ConvertSTDStringToPlatformString(const std::string&amp; s);
+	};
+}
+
+ref class Direct3DApplicationSource sealed : Windows::ApplicationModel::Core::IFrameworkViewSource
+{
+public:
+	virtual Windows::ApplicationModel::Core::IFrameworkView^ CreateView();
+};</pre></div>
+<h3>App.cpp</h3>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:001f8626-73cc-4e6c-be59-573eb975f10c" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: cpp;">#include "pch.h"
+#include "App.h"
+
+#include &lt;ppltasks.h&gt;
+
+using namespace SampleOgreApp;
+
+using namespace concurrency;
+using namespace Windows::ApplicationModel;
+using namespace Windows::ApplicationModel::Core;
+using namespace Windows::ApplicationModel::Activation;
+using namespace Windows::UI::Core;
+using namespace Windows::UI::Input;
+using namespace Windows::System;
+using namespace Windows::Foundation;
+using namespace Windows::Graphics::Display;
+
+// The main function is only used to initialize our IFrameworkView class.
+[Platform::MTAThread]
+int main(Platform::Array&lt;Platform::String^&gt;^)
+{
+	auto direct3DApplicationSource = ref new Direct3DApplicationSource();
+	CoreApplication::Run(direct3DApplicationSource);
+	return 0;
+}
+
+IFrameworkView^ Direct3DApplicationSource::CreateView()
+{
+	return ref new App();
+}
+
+App::App() :
+m_windowClosed(false),
+m_windowVisible(true),
+mOgreRoot(nullptr)
+{
+}
+
+App::~App()
+{
+	delete mOgreRoot;
+}
+
+std::string App::ConvertPlatformStringToSTDString(Platform::String^ s)
+{
+	// need to convert to narrow (OEM or ANSI) codepage so that fstream can use it 
+	// properly on international systems.
+	char npath[MAX_PATH];
+
+	// Runtime is modern, narrow calls are widened inside CRT using CP_ACP codepage.
+	UINT codepage = CP_ACP;
+
+	if (0 == WideCharToMultiByte(codepage, 0 /* Use default flags */, s-&gt;Data(), -1, npath, sizeof(npath), NULL, NULL))
+	{
+		throw ref new Platform::FailureException("Unable to convert Platform string to std::string!");
+	}
+
+	// success
+	return std::string(npath);
+}
+
+Platform::String^ App::ConvertSTDStringToPlatformString(const std::string&amp; s)
+{
+	std::vector&lt;wchar_t&gt; wpath(s.length() + 1, '\0');
+
+	// Runtime is modern, narrow calls are widened inside CRT using CP_ACP codepage.
+	UINT codepage = CP_ACP;
+
+	(void)MultiByteToWideChar(codepage, 0, s.data(), s.length(), &amp;wpath[0], wpath.size());
+
+	return ref new Platform::String(&amp;wpath[0]);
+}
+
+void App::CreateShadersForDefaultMaterialsUsingRTSS()
+{
+	// creates shaders for base material BaseWhite using the RTSS
+	Ogre::MaterialPtr baseWhite = Ogre::MaterialManager::getSingleton().getByName("BaseWhite", Ogre::ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
+	baseWhite-&gt;setLightingEnabled(false);
+	mShaderGenerator-&gt;createShaderBasedTechnique(
+		"BaseWhite",
+		Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
+		Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+	mShaderGenerator-&gt;validateMaterial(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME,
+		"BaseWhite");
+	if (baseWhite-&gt;getNumTechniques() &gt; 1)
+	{
+		baseWhite-&gt;getTechnique(0)-&gt;getPass(0)-&gt;setVertexProgram(
+			baseWhite-&gt;getTechnique(1)-&gt;getPass(0)-&gt;getVertexProgram()-&gt;getName());
+		baseWhite-&gt;getTechnique(0)-&gt;getPass(0)-&gt;setFragmentProgram(
+			baseWhite-&gt;getTechnique(1)-&gt;getPass(0)-&gt;getFragmentProgram()-&gt;getName());
+	}
+
+	// creates shaders for base material BaseWhiteNoLighting using the RTSS
+	mShaderGenerator-&gt;createShaderBasedTechnique(
+		"BaseWhiteNoLighting",
+		Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
+		Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
+	mShaderGenerator-&gt;validateMaterial(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME,
+		"BaseWhiteNoLighting");
+	Ogre::MaterialPtr baseWhiteNoLighting = Ogre::MaterialManager::getSingleton().getByName("BaseWhiteNoLighting", Ogre::ResourceGroupManager::INTERNAL_RESOURCE_GROUP_NAME);
+	if (baseWhite-&gt;getNumTechniques() &gt; 1)
+	{
+		baseWhiteNoLighting-&gt;getTechnique(0)-&gt;getPass(0)-&gt;setVertexProgram(
+			baseWhiteNoLighting-&gt;getTechnique(1)-&gt;getPass(0)-&gt;getVertexProgram()-&gt;getName());
+		baseWhiteNoLighting-&gt;getTechnique(0)-&gt;getPass(0)-&gt;setFragmentProgram(
+			baseWhiteNoLighting-&gt;getTechnique(1)-&gt;getPass(0)-&gt;getFragmentProgram()-&gt;getName());
+	}
+}
+
+// The first method called when the IFrameworkView is being created.
+void App::Initialize(CoreApplicationView^ applicationView)
+{
+	// Register event handlers for app lifecycle. This example includes Activated, so that we
+	// can make the CoreWindow active and start rendering on the window.
+	applicationView-&gt;Activated +=
+		ref new TypedEventHandler&lt;CoreApplicationView^, IActivatedEventArgs^&gt;(this, &amp;App::OnActivated);
+
+	CoreApplication::Suspending +=
+		ref new EventHandler&lt;SuspendingEventArgs^&gt;(this, &amp;App::OnSuspending);
+
+	CoreApplication::Resuming +=
+		ref new EventHandler&lt;Platform::Object^&gt;(this, &amp;App::OnResuming);
+}
+
+// Called when the CoreWindow object is created (or re-created).
+void App::SetWindow(CoreWindow^ window)
+{
+	window-&gt;SizeChanged +=
+		ref new TypedEventHandler&lt;CoreWindow^, WindowSizeChangedEventArgs^&gt;(this, &amp;App::OnWindowSizeChanged);
+
+	window-&gt;VisibilityChanged +=
+		ref new TypedEventHandler&lt;CoreWindow^, VisibilityChangedEventArgs^&gt;(this, &amp;App::OnVisibilityChanged);
+
+	window-&gt;Closed +=
+		ref new TypedEventHandler&lt;CoreWindow^, CoreWindowEventArgs^&gt;(this, &amp;App::OnWindowClosed);
+
+	DisplayInformation^ currentDisplayInformation = DisplayInformation::GetForCurrentView();
+
+	currentDisplayInformation-&gt;DpiChanged +=
+		ref new TypedEventHandler&lt;DisplayInformation^, Object^&gt;(this, &amp;App::OnDpiChanged);
+
+	currentDisplayInformation-&gt;OrientationChanged +=
+		ref new TypedEventHandler&lt;DisplayInformation^, Object^&gt;(this, &amp;App::OnOrientationChanged);
+
+	DisplayInformation::DisplayContentsInvalidated +=
+		ref new TypedEventHandler&lt;DisplayInformation^, Object^&gt;(this, &amp;App::OnDisplayContentsInvalidated);
+
+	// Disable all pointer visual feedback for better performance when touching.
+	auto pointerVisualizationSettings = PointerVisualizationSettings::GetForCurrentView();
+	pointerVisualizationSettings-&gt;IsContactFeedbackEnabled = false;
+	pointerVisualizationSettings-&gt;IsBarrelButtonFeedbackEnabled = false;
+
+	// OGRE INTIALIZATION - I've decided to do this here because we need a CoreWindow handle in order to create the Ogre::RenderWindow object.
+
+	if (mOgreRoot == nullptr)
+	{
+
+		// The Ogre Root constructor requires 3 directory paths: Plugin path, config path, log path
+		//   1. We don't want to have any dll's and have all the libs build staticly, so we can tell Ogre not to look for any plugins by supply a blank string.
+		//   2. Similarly, we won't be using an Ogre.cfg file, so we pass in a blank string.
+		//  3. We do want logs produced by Ogre, in case there are some issues that need investigation.  For this we'll create a file and pass its path to Ogre.
+
+		Ogre::String emptyString = Ogre::BLANKSTRING;
+
+		// Since we are using the CreateFileAsync method, and we need to make sure the file exists before we instantiate Ogre::Root, we have to use the .then functionality 
+		// to make the operations go in order
+		Windows::Storage::StorageFolder^ rootApplicationDataFolder = Windows::Storage::ApplicationData::Current-&gt;LocalFolder;
+
+		auto createFileTask = create_task(rootApplicationDataFolder-&gt;CreateFileAsync(ConvertSTDStringToPlatformString("Ogre.log"), Windows::Storage::CreationCollisionOption::GenerateUniqueName));
+		createFileTask.then([=](Windows::Storage::StorageFile^ ogreLog)
+		{
+			mOgreRoot = new Ogre::Root(emptyString, emptyString, ConvertPlatformStringToSTDString(ogreLog-&gt;Path));
+
+			// Let's continue initializing Ogre here, right after instantiating Ogre::Root
+
+			mD3D11Plugin = OGRE_NEW Ogre::D3D11Plugin();
+			mOgreRoot-&gt;installPlugin(mD3D11Plugin);
+
+			mOctreePlugin = OGRE_NEW Ogre::OctreePlugin();
+			mOgreRoot-&gt;installPlugin(mOctreePlugin);
+
+			// Lets set the Render System for Ogre to use. (The D3D11Plugin we just loaded)
+			mOgreRoot-&gt;setRenderSystem(mOgreRoot-&gt;getAvailableRenderers()[0]);
+
+			// Initialize Ogre! (NOTE: We cannot create a Render Window until we have a handle to the CoreWindow of our WinRT app)
+			mOgreRoot-&gt;initialise(false, "OGRE Sample Browser");
+
+			// Create our RenderWindow
+			Ogre::NameValuePairList miscParams;
+			if (window != nullptr)
+			{
+				miscParams["externalWindowHandle"] = Ogre::StringConverter::toString((size_t)reinterpret_cast&lt;void*&gt;(window));
+				mOgreRenderWindow = mOgreRoot-&gt;createRenderWindow("SampleOgreApp RenderWindow", static_cast&lt;unsigned int&gt;(window-&gt;Bounds.Width), static_cast&lt;unsigned int&gt;(window-&gt;Bounds.Height), false, &amp;miscParams);
+
+				// With the creation of the RenderWindow, the Material manager is initialized.  If you want materials to be parsed, they need to first be declared using Resource Groups.
+
+				// In this example we want to display an ogre head, which is made of a mesh, material, and textures. Lets tell Ogre to locate these resources for us and associate
+				// them with the default Resource Group.  We can do this via the addResourceLocation API.
+
+				// Remember that all assets should be added to the project from inside Visual Studio, in the solution explorer.
+				// The location of each asset is defined by its "Relative Path", which can be viewed in the Property window with the asset file selected. (View -&gt; Properties Window)
+				// NOTE: Adding filters (folders) to the project and having files in these folders does not indicate their relative path.
+				// NOTE: Make sure each file has Content=true for its properties, otherwise it won't be packaged with the application.
+
+				// All of the resources required for the ogre head are stored in our Assets folder. (D:\Sandbox\SampleOgreApp\SampleOgreApp\Assets)
+				// Lets add the relative path to the default resource group.
+				Ogre::ResourceGroupManager::getSingleton().addResourceLocation(".\\Assets\\", "FileSystem", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME);
+
+				// Now that we have declared all resource locations we care about, we can initialize our ResourceGroups, and which will parse any scripts such as Materials and programs.
+				Ogre::ResourceGroupManager::getSingletonPtr()-&gt;initialiseAllResourceGroups();
+
+				// The RTShader system needs to be used for rendering, since the D3D11 device does not have a fixed function pipeline.
+				// Initialization of the RTShader must be called after the RenderWindow is created, as the D3D11 RenderSystem creates the D3D11GpuProgramManager at this time.
+				Ogre::RTShader::ShaderGenerator::initialize();
+				mShaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
+
+				// Ask for the RTShader System to generate 'hlsl' at version 4.0.
+				mShaderGenerator-&gt;setTargetLanguage("hlsl", 4.0f);
+
+				// By providing the ShaderGenerator with a Cache path, we can re-use shaders. If the required shaders do not exist, they will be built and placed in the cache for future use.
+				// If no Cache is specified, the shaders will be built every time they are needed, and stored in a temporary system path.  A good practice would be to set the cache
+				// during development, and for submission, bundle the necessary shaders with with the project.
+				mShaderGenerator-&gt;setShaderCachePath(ConvertPlatformStringToSTDString(rootApplicationDataFolder-&gt;Path));
+
+				// Create and register the material manager listener if it doesn't exist yet.
+				ShaderGeneratorTechniqueResolverListener* mMaterialMgrListener = new ShaderGeneratorTechniqueResolverListener(mShaderGenerator);
+				Ogre::MaterialManager::getSingleton().addListener(mMaterialMgrListener);
+
+				// Create a dummy Scene
+
+				// Re-using code from Ogre tutorial: http://www.ogre3d.org/tikiwiki/tiki-ind ... =Tutorials
+				// and from ExampleApplication.h
+
+				Ogre::SceneManager* sm = mOgreRoot-&gt;createSceneManager(Ogre::ST_EXTERIOR_CLOSE, "DummyScene");
+				sm-&gt;setAmbientLight(Ogre::ColourValue(0.5f, 0.5f, 0.5f));
+
+				// Add the SceneManager to the ShaderGenerator so that it can listen for Scene rendering events and configure gpu parameters
+				mShaderGenerator-&gt;addSceneManager(sm);
+
+				CreateShadersForDefaultMaterialsUsingRTSS();
+
+				Ogre::Camera* cam = sm-&gt;createCamera("DummyCam");
+				// Position it at 500 in Z direction
+				cam-&gt;setPosition(Ogre::Vector3(0, 0, 500));
+				// Look back along -Z
+				cam-&gt;lookAt(Ogre::Vector3(0, 0, -300));
+				cam-&gt;setNearClipDistance(5);
+
+				Ogre::Viewport* vp = mOgreRenderWindow-&gt;addViewport(cam);
+				vp-&gt;setBackgroundColour(Ogre::ColourValue::White);
+				
+				Ogre::Entity* ogreHead = sm-&gt;createEntity("Head", "ogrehead.mesh");
+				Ogre::SceneNode* headNode = sm-&gt;getRootSceneNode()-&gt;createChildSceneNode("HeadNode");
+				headNode-&gt;attachObject(ogreHead);
+
+				Ogre::Light* light = sm-&gt;createLight("MainLight");
+				light-&gt;setPosition(20, 80, 50);
+			}
+		});
+	}
+}
+
+// Initializes scene resources, or loads a previously saved app state.
+void App::Load(Platform::String^ entryPoint)
+{
+}
+
+// This method is called after the window becomes active.
+void App::Run()
+{
+	// Let's wait until Ogre has been initialized..
+	while (mOgreRoot == nullptr)
+		CoreWindow::GetForCurrentThread()-&gt;Dispatcher-&gt;ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+
+	while (!m_windowClosed)
+	{
+		if (m_windowVisible)
+		{
+			CoreWindow::GetForCurrentThread()-&gt;Dispatcher-&gt;ProcessEvents(CoreProcessEventsOption::ProcessAllIfPresent);
+
+			// Perform game-logic update
+
+			// Render
+			mOgreRoot-&gt;renderOneFrame();
+		}
+		else
+		{
+			CoreWindow::GetForCurrentThread()-&gt;Dispatcher-&gt;ProcessEvents(CoreProcessEventsOption::ProcessOneAndAllPending);
+		}
+	}
+}
+
+// Required for IFrameworkView.
+// Terminate events do not cause Uninitialize to be called. It will be called if your IFrameworkView
+// class is torn down while the app is in the foreground.
+void App::Uninitialize()
+{
+}
+
+// Application lifecycle event handlers.
+
+void App::OnActivated(CoreApplicationView^ applicationView, IActivatedEventArgs^ args)
+{
+	// Run() won't start until the CoreWindow is activated.
+	CoreWindow::GetForCurrentThread()-&gt;Activate();
+}
+
+void App::OnSuspending(Platform::Object^ sender, SuspendingEventArgs^ args)
+{
+	// Save app state asynchronously after requesting a deferral. Holding a deferral
+	// indicates that the application is busy performing suspending operations. Be
+	// aware that a deferral may not be held indefinitely. After about five seconds,
+	// the app will be forced to exit.
+	SuspendingDeferral^ deferral = args-&gt;SuspendingOperation-&gt;GetDeferral();
+
+	create_task([this, deferral]()
+	{
+		// Insert your code here.
+
+		deferral-&gt;Complete();
+	});
+}
+
+void App::OnResuming(Platform::Object^ sender, Platform::Object^ args)
+{
+	// Restore any data or state that was unloaded on suspend. By default, data
+	// and state are persisted when resuming from suspend. Note that this event
+	// does not occur if the app was previously terminated.
+
+	// Insert your code here.
+}
+
+// Window event handlers.
+
+void App::OnWindowSizeChanged(CoreWindow^ sender, WindowSizeChangedEventArgs^ args)
+{
+}
+
+void App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ args)
+{
+	m_windowVisible = args-&gt;Visible;
+}
+
+void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
+{
+	m_windowClosed = true;
+}
+
+// DisplayInformation event handlers.
+
+void App::OnDpiChanged(DisplayInformation^ sender, Object^ args)
+{
+}
+
+void App::OnOrientationChanged(DisplayInformation^ sender, Object^ args)
+{
+}
+
+void App::OnDisplayContentsInvalidated(DisplayInformation^ sender, Object^ args)
+{
+}</pre></div>
+<p>Now add the following file to the project:</p>
+<h3>ShaderGeneratorTechniqueResolverListener.h</h3>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:9947749b-bc53-47cf-a639-0631ac22fd79" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: cpp;collapse:true;">#include "Ogre.h"
+#include "OgreRTShaderSystem.h"
+
+/** This class demonstrates basic usage of the RTShader system.
+It sub class the material manager listener class and when a target scheme callback
+is invoked with the shader generator scheme it tries to create an equivalent shader
+based technique based on the default technique of the given material.
+*/
+class ShaderGeneratorTechniqueResolverListener : public Ogre::MaterialManager::Listener
+{
+public:
+
+	ShaderGeneratorTechniqueResolverListener(Ogre::RTShader::ShaderGenerator* pShaderGenerator)
+	{
+		mShaderGenerator = pShaderGenerator;
+	}
+
+	/** This is the hook point where shader based technique will be created.
+	It will be called whenever the material manager won't find appropriate technique
+	that satisfy the target scheme name. If the scheme name is out target RT Shader System
+	scheme name we will try to create shader generated technique for it.
+	*/
+	virtual Ogre::Technique* handleSchemeNotFound(unsigned short schemeIndex,
+		const Ogre::String&amp; schemeName, Ogre::Material* originalMaterial, unsigned short lodIndex,
+		const Ogre::Renderable* rend)
+	{
+		Ogre::Technique* generatedTech = NULL;
+
+		// Case this is the default shader generator scheme.
+		if (schemeName == Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME)
+		{
+			bool techniqueCreated;
+
+			// Create shader generated technique for this material.
+			techniqueCreated = mShaderGenerator-&gt;createShaderBasedTechnique(
+				originalMaterial-&gt;getName(),
+				Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
+				schemeName);
+
+			// Case technique registration succeeded.
+			if (techniqueCreated)
+			{
+				// Force creating the shaders for the generated technique.
+				mShaderGenerator-&gt;validateMaterial(schemeName, originalMaterial-&gt;getName());
+
+				// Grab the generated technique.
+				Ogre::Material::TechniqueIterator itTech = originalMaterial-&gt;getTechniqueIterator();
+
+				while (itTech.hasMoreElements())
+				{
+					Ogre::Technique* curTech = itTech.getNext();
+
+					if (curTech-&gt;getSchemeName() == schemeName)
+					{
+						generatedTech = curTech;
+						break;
+					}
+				}
+			}
+		}
+
+		return generatedTech;
+	}
+
+protected:
+	Ogre::RTShader::ShaderGenerator*        mShaderGenerator;                       // The shader generator instance.
+};</pre></div>
+<h3>Add the Content</h3>
+<p>The last step before you can actually run this App as a Store App, is too add the content to the project’s Asset folder. Most of the files we will need are related to the RTShader system. There are then a couple of files needed to display the OGRE head model. Find each of the files listed below, and copy them to the “<font face="Consolas">OgreApp\Assets</font>” folder, which will be under your App’s project folder. </p>
+<p>Files to copy</p>
+<p>All of these files are relative to the <font face="Consolas">D:\src\Samples\Media\</font> folder</p>
+<table cellspacing="0" cellpadding="2" width="400" border="0">
+<tbody>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">RTShaderLib\HLSL\FFPLib_Common.hlsl</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">RTShaderLib\HLSL\FFPLib_Fog.hlsl</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">RTShaderLib\HLSL\FFPLib_Lighting.hlsl</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">RTShaderLib\HLSL\FFPLib_Texturing.hlsl</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">RTShaderLib\HLSL\FFPLib_Transform.hlsl</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">models\ogrehead.mesh</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">material\scripts\Ogre.material</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">materials\textures\GreenSkin.jpg</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">materials\textures\spheremap.png</font></p></td></tr>
+<tr>
+<td valign="top" width="400">
+<p><font face="Consolas">materials\textures\tusk.jpg</font></p></td></tr></tbody></table>
+<p>&nbsp;</p>
+<p>Because these files are content and not files that need to be built, we need to tell Visual Studio to ignore them and just copy them to the output folder. To do this, Right-Click the Assets folder and select Add-&gt;Existing Item… from the context menu, Then select all of the files listed above and click Add. This will add them to the project, now select each of them in the Solution Explorer window in Visual Studio and Right-Click and select properties. Set the Content field to “Yes” and the ‘Item Type’ field to ‘Does not participate in build’.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_24.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_11.png" width="644" height="382"></a></p>
+<h3>Build &amp; Run</h3>
+<p>Make sure you made the changes correctly, build the project, you can now run the app and bask in the glory that is OGRE!</p>
+<p><a href="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_22.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/b19290c229c6_854A/image_thumb_10.png" width="1020" height="580"></a></p>
+<h2>Wrapping it up</h2>
+<p>In this article we accomplished the goal of getting a sample application configured to use the OGRE library to render a model on the screen in a Windows Store App. To accomplish this amazing feat we had to first compile the OGRE dependencies, then compile OGRE itself. Finally we created an App to display the OGRE model.</p>

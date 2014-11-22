@@ -1,0 +1,26 @@
+```
+layout: 'default'
+```
+
+<!-- Example row of columns -->
+<div class="row">
+	<div class="span8" id="layout-content">
+		<div>
+			<div class="zone zone-content">
+				<%- @content %>
+            </div>
+        </div>
+	</div>		
+	<div class="span3">
+		<div class="well aside-2">
+			<aside class="aside-second" id="aside-second">
+				<div class="zone zone-aside-second">
+					<%- @partial('tag-cloud') %>
+                    <%- @partial('community') %>
+                    <%- @partial('evangelists') %>
+                    <%- @partial('twitter-feed') %>
+				</div>
+			</aside>
+		</div>
+	</div>
+</div>

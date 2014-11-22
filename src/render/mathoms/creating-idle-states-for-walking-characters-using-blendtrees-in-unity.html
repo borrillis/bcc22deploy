@@ -1,0 +1,74 @@
+﻿```
+layout: post
+title: Creating Idle States for Walking Characters using BlendTrees in Unity
+tags: ['Unity', 'sprites', 'animation', '2D', 'BlendTree']
+date: 4/4/2014 12:00:31 PM  
+draft: false
+``` 
+<p><img style="float: left; display: inline;" src="/Media/Default/Windows-Live-Writer/25a92b2c9b45_12215/image_thumb.png" align="left" />&hellip;Or, &ldquo;Is there a way to pause the animation so the character is not moving when no key is being pressed, yet remain facing the same direction it was moving in?&rdquo; That is a question posted in the comments on my &ldquo;<a href="/mathoms/creating-2d-animated-sprites-using-unity-4.3" target="_blank">Creating 2D Animated Sprites using Unity 4.3</a>&rdquo; post by Chris. Rather than answer in the comments section I thought this topic was important enough, and long enough, to warrant a whole post.</p>
+<h2>Getting Setup</h2>
+<p>Well start where we left off in the original post with our walking professor. In order to connect the dots, we will need to create four new animations, one for each direction the professor can be pointed in. We&rsquo;ll use the technique discussed in &ldquo;<a href="/mathoms/creating-a-single-frame-animation-using-unity-4.3-2d-workflows-the-better-way" target="_blank">Creating a Single Frame Animation using Unity 4.3 2d Workflows, the better way</a>&rdquo;. Follow the next steps for each direction:</p>
+<ol>
+<li>Drag the first image from the walking animation onto your scene to create a GameObject. Make sure it&rsquo;s selected in the Scene Hierarchy.</li>
+<li>Open the Animation window, using CTRL-6 or Window-&gt;Animation from the menu.<br /><a href="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb3_2.png"><img title="image_thumb3" style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image_thumb3" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb3_thumb.png" width="644" height="351" /></a></li>
+<li>Click the &lsquo;Add Curve&rsquo; button, and save the new animation as &ldquo;professor_idle_[Direction].anim&rdquo;.</li>
+<li>In the popup window that appears next to the &lsquo;Add Curve&rsquo; button, expand Sprite Renderer, and click the &lsquo;+&rsquo; button to the right of &lsquo;Sprite&rsquo;.<br /><a href="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb5_2.png"><img title="image_thumb5" style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image_thumb5" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb5_thumb.png" width="644" height="350" /></a></li>
+<li>Close the Animation window.</li>
+</ol>
+<p>&nbsp;</p>
+<p>If you have done this correctly for each direction, you will now have 4 new animations named professor_idle_north,anim, professor_idle_east,anim, professor_idle_west,anim and professor_idle_south,anim. You&rsquo;ll also have 4 new GameObjects in your scene, and 4 new Animation Controlles which we do not need. Delete the extra GameObjects and Animation Controllers, mine are all named &lsquo;professor_walk_##&rsquo; so they were easy to locate.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_2.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb.png" width="644" height="478" /></a></p>
+<h2>Configuring the Animation Controller</h2>
+<p>Now that we have the animations all configured we can start hooking that up into our existing Animation Controller, which is named &lsquo;professorAnimatorController.controller&rsquo;. Lets open that up to make a few additions.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_4.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb_1.png" width="644" height="466" /></a></p>
+<p>There are several ways you could go about doing this, you could add an additional state for each direction that is the idle state. But then you&rsquo;d have to add transitions from each idle state to each walk state, that&rsquo;s an additional 16 transitions, plus 4 for each walk to their associated idle state, a total of 20 additional transitions. That would make this diagram virtually unusable.</p>
+<p>So there is a better way, and that is to use a <a href="http://docs.unity3d.com/Documentation/Manual/AnimationBlendTrees.html" target="_blank">Animation BlendTree</a>. This will allow us to transition from walking to idle in a single state. Lets start with the south state and change it to use a BlendTree.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_6.png"><img title="image" style="background-image: none; float: left; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb_2.png" width="219" align="left" height="69" /></a>First we will need another parameter to control the BlendTrees. Let&rsquo;s call it &lsquo;Speed&rsquo;. Click the &lsquo;+&rsquo; on the Parameters toolpane to add a new Float parameter, and use &ldquo;Speed&rdquo; as the name. Also set it to default to a value of 1.0.</p>
+<p>Next we can change the &lsquo;professor_walk_south&rsquo; state to a BlendTree. Right Click on the the state, and select &lsquo;Create new BlendTree in State&rsquo; from the context menu. Initially it looks like nothing changed, however if you select the state, the inspector will show you the &lsquo;Motion&rdquo; property is now set to a value of&nbsp; &ldquo;Blend Tree&rdquo; instead of the animation for the professor walking south. Double Click the State to edit the Blend Tree.</p>
+<p>The Blend Tree starts out empty, but there are a few things to note. I&rsquo;ve highlighted the parameter selection in the image below. Unity automatically picked the &lsquo;Speed&rsquo; parameter for us because it was the only float parameter we have, If you are using more than one float parameter, you&rsquo;ll have to choose the correct one.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_8.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb_3.png" width="644" height="352" /></a></p>
+<p>The last step is to associate our two animations into the Blend Tree. That is done through the Motions list. Add a Motion for the walk animation by clicking the &lsquo;+&rsquo; sign, and select &lsquo;Add Motion Field&rsquo;. You can then drag the &lsquo;professor_idle_south.anim&rsquo; onto the first field. Repeat that process again for the &lsquo;professor_walk_south.anim&rsquo; file. So the trick to getting the animations to change is the threshold value on each Motion. For the idle animation the threshold should be &lsquo;0&rsquo; and for walk we need a &lsquo;1&rsquo;. This will allow us to change the &lsquo;Speed&rsquo; parameter from 1.0 to 0.0 and the Blend Tree will switch from the walk animation to the idle animation because the threshold was reached.</p>
+<p>Repeat the above steps for each direction, and then we can change our playerController so we can see the animation in action. You can navigate back up to the base layer in the Animator by clicking the &ldquo;Base Layer&rdquo; button in the breadcrumbs.</p>
+<p><a href="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_10.png"><img title="image" style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb_4.png" width="644" height="352" /></a></p>
+<p>Lastly to wrap this all up, lets modify the playerController.cs file. Double click it in the Project toolpane to open your favorite IDE. Modify the Update method to look like the following:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:0a748acd-2027-408d-b44a-96d5bfb1bbe3" class="wlWriterEditableSmartContent" style="float: none; margin: 0px; display: inline; padding: 0px;">
+<pre class="brush: c#;">// Update is called once per frame
+void Update()
+{
+
+    var vertical = Input.GetAxis("Vertical");
+    var horizontal = Input.GetAxis("Horizontal");
+
+    if (vertical &gt; 0)
+    {
+        animator.SetInteger("Direction", 2);
+        animator.SetFloat("Speed", 1.0f);
+    }
+    else if (vertical &lt; 0)
+    {
+        animator.SetInteger("Direction", 0);
+        animator.SetFloat("Speed", 1.0f);
+    }
+    else if (horizontal &lt; 0)
+    {
+        animator.SetInteger("Direction", 1);
+        animator.SetFloat("Speed", 1.0f);
+    }
+    else if (horizontal &gt; 0)
+    {
+        animator.SetInteger("Direction", 3);
+        animator.SetFloat("Speed", 1.0f);
+    }
+    else
+    {
+        animator.SetFloat("Speed", 0.0f);
+    }
+}
+
+</pre>
+</div>
+<p>The changes that were made set the Speed parameter to &ldquo;1.0f&rdquo; if the character is moving, and to &ldquo;0.0f&rdquo; if the character is not.</p>
+<p>Save your scene and run it to see the changes in action! If you do not press any of the arrow keys, the Professor should not be animated and continue to face the last direction moved. As you press a directional arrow, the Professor should run the walk animation for that direction.</p>
+<h2>Wrapping Up</h2>
+<p>While creating multiple frame/image animations is fairly straight-forward in Unity using the 2D workflow, discovering how to handle some edge cases is not. This post has shown you how to blend animations together without a lot of messy state transitions and ugly diagrams.</p>
+<p><a href="https://bitbucket.org/borrillis/blog-projects/get/V3.zip" target="_blank"><img title="image_thumb4922" style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-width: 0px;" border="0" alt="image_thumb4922" src="/Media/Default/Windows-Live-Writer/fe2753ee52ab_847F/image_thumb4922_fe6cda51-403e-4a8b-a36d-f51ca122294e.png" width="64" height="64" />Download the sample code from Bitbucket</a></p>

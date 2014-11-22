@@ -1,0 +1,192 @@
+---
+layout: post
+title: A Recipe for Integrating the XNA GS Content Pipeline projects into your MonoGame projects
+tags: ['MonoGame', 'XNA', 'VS2012']
+date: 1/17/2013 11:08:00 AM
+draft: false
+---
+
+<h2>Overview</h2>
+<p>There are several series from fellow Microsoft Evangelists on using MonoGame for your Windows 8 Store apps. I don&rsquo;t want to duplicate what they have already done, so instead I&rsquo;ll refer you to them below. These articles should give you a good start on using MonoGame to build your next game for Windows 8. Go ahead and read through these articles before continuing, I&rsquo;ll be waiting for you after the fold. <img class="wlEmoticon wlEmoticon-smile" style="border-style: none;" alt="Smile" src="/Media/Default/Media/Default/Migrated/wlEmoticon-smile_2.png" /></p>
+<p>from Bob Familiar :</p>
+<p><a href="http://blogs.msdn.com/b/bobfamiliar/archive/2012/08/01/windows-8-xna-and-monogame-part-1-overview.aspx">Windows 8, XNA and MonoGame &ndash; Part 1, Overview</a></p>
+<p><a href="http://blogs.msdn.com/b/bobfamiliar/archive/2012/08/02/windows-8-xna-and-monogame-part-2-getting-started.aspx">Windows 8, XNA and MonoGame - Part 2, Getting Started</a></p>
+<p><a href="http://blogs.msdn.com/b/bobfamiliar/archive/2012/08/07/windows-8-xna-and-monogame-part-3-code-migration-and-windows-8-feature-support.aspx">Windows 8, XNA and MonoGame - Part 3, Getting Windows 8 Store Ready</a></p>
+<p>and Tara Walker,</p>
+<p><a href="http://blogs.msdn.com/b/tarawalker/archive/2012/12/04/windows-8-game-development-using-c-xna-and-monogame-3-0-building-a-shooter-game-walkthrough-part-1-overview-installation-monogame-3-0-project-creation.aspx">Windows 8 Game Development using C#, XNA and MonoGame 3.0: Building a Shooter Game Walkthrough &ndash; Part 1: Overview, Installation, MonoGame 3.0 Project Creation</a></p>
+<p><a href="http://blogs.msdn.com/b/tarawalker/archive/2012/12/10/windows-8-game-development-using-c-xna-and-monogame-3-0-building-a-shooter-game-walkthrough-part-2-creating-the-shooter-player-asset-of-the-game.aspx">Windows 8 Game Development using C#, XNA and MonoGame 3.0: Building a Shooter Game Walkthrough &ndash; Part 2: Creating the Shooter/Player Asset of the Game</a></p>
+<p><a href="http://blogs.msdn.com/b/tarawalker/archive/2013/01/04/windows-8-game-development-using-c-xna-and-monogame-3-0-building-a-shooter-game-walkthrough-part-3-updating-graphics-using-content-pipeline-with-monogame.aspx">Windows 8 Game Development using C#, XNA and MonoGame 3.0: Building a Shooter Game Walkthrough &ndash; Part 3: Updating Graphics using Content Pipeline with MonoGame</a></p>
+<p>Great, now you have enough background to dive a little deeper into MonoGame using Visual Studio 2012. What I want to show you in this post is how to make using MonoGame a little easier and more like what you may be used to if you are an XNA Game Studio 4.0 user.</p>
+<p>Both Bob and Tara mention the fact that MonoGame currently does not have a build-time implementation of the Content Pipeline. In other words, you have to use the XNA GS 4.0 Content Pipeline projects in order to build your content. Building you content will take you images and other assets and transforms them into files with the .xnb extension.</p>
+<p>Nearly every article or post you will find on the internetz will have you either use VS 2010 or VS 2012 with the Windows Phone SDK to build your content, then manually copy the content into your Windows 8 Store project so it can be found by the MonoGame content pipeline at runtime. To say the least this is a tedious, error prone and disruptive part of the development process.</p>
+<p>There is a better way, and you will not need VS 2010 anymore, unless you are converting an existing XNA GS 4.0 project, which is a topic I&rsquo;ll cover in a later post. With a few minor changes to your MonoGame project file, you can get your content to build and be placed in the correct folder for proper deployment.</p>
+<p>The unfortunate part of this at the moment, is that this recipe will not work for the Express Editions of Visual Studio. I&rsquo;m working on a post that will explain this and provide the best workaround that I can, stay tuned.</p>
+<h2>Ingredients List</h2>
+<p>Make sure you have the following products installed :</p>
+<ul>
+<li><a href="http://aka.ms/mc_phonesdk" target="_blank">Visual Studio 2012 Express for Windows Phone 8 &amp; SDK</a></li>
+<li><a href="http://aka.ms/mc_vse2012_windows8" target="_blank">Visual Studio 2012 Professional or higher</a></li>
+<li><a href="http://monogame.codeplex.com/releases/view/96421" target="_blank">MonoGame 3.0 Beta</a></li>
+</ul>
+<h2>Recipe</h2>
+<ol>
+<li>
+<h3>Create new MonoGame project and solution</h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">Open Visual Studio 2012</span> <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_2.png"><img src="/Media/Default/Migrated/image_thumb.png" alt="image" width="244" height="136" /></a></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Create a new MonoGame Project</span></h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">File &ndash;&gt; New &ndash;&gt; Project [CTRL-SHFT-N]</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Select &ldquo;MonoGame Game&rdquo; from the Visual C# / MonoGame&nbsp; category</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Give your Game Project a name, folder and solution name</span> <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_4.png"><img src="/Media/Default/Migrated/image_thumb_1.png" alt="image" /></a></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Click &ldquo;Ok&rdquo; to create your game project</span></h3>
+</li>
+</ol></li>
+</ol></li>
+<li>
+<h3>Add Empty XNA Content Pipeline Project</h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">File &ndash;&gt; Add &ndash;&gt; Project</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Select the &ldquo;Empty Content Project(4.0)&rdquo; template from the Visual C# / XNA Game Studio 4.0 category</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Name the project &ldquo;Content&rdquo;</span> <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_6.png"><img src="/Media/Default/Migrated/image_thumb_2.png" alt="image" /></a></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Click &ldquo;Ok&rdquo; to create your new content project</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Modify the Content Root Directory When the content builds, it will build into the output folder of the referencing project ( which will be the MonoGame project ). In XNA the game assembly was at the root and the content was in the Content folder under the output folder. In Windows 8, the application has to be packaged before it can be deployed, so the content has to be put into the packaging folder to be properly deployed. The packaging folder is called &ldquo;AppX&rdquo; and exists under the output folder.</span></h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">Select the Content Project in Solution Explorer</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">In the Properties window, change the &ldquo;Content Root Folder Property&rdquo; from &ldquo;Content&rdquo; to &ldquo;AppX/Content&rdquo; <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_38.png"><img src="/Media/Default/Migrated/image_thumb_18.png" alt="image" width="244" height="136" /></a></span></h3>
+</li>
+</ol></li>
+</ol></li>
+<li>
+<h3>Add some test content <span style="font-weight: normal;">New to Visual Studio 2012 is the ability to create game assets from within the IDE itself. We&rsquo;ll use this feature to create a texture to test with.</span></h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">Right-Click the Content Project</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Add &ndash;&gt; New Item[CTRL-SHFT-A]</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Select &ldquo;PNG Image (.png)&rdquo; </span> <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_12.png"><img src="/Media/Default/Migrated/image_thumb_5.png" alt="image" width="244" height="170" /></a></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Click Add</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Use the image tools to draw something in the new image.</span> <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_14.png"><img src="/Media/Default/Migrated/image_thumb_6.png" alt="image" width="244" height="136" /></a></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Save your Changes [CTRL-S]</span></h3>
+</li>
+</ol></li>
+<li>
+<h3>Modify MonoGame project file <span style="font-weight: normal;">Now we need to hook the Content project to our MonoGame project so that building the MonoGame will build our content. <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_16.png"><img src="/Media/Default/Migrated/image_thumb_7.png" alt="image" width="244" height="136" /></a></span></h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">Unload the MonoGame project</span></h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">Right-Click the MonoGame Project</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Select &ldquo;Unload Project&rdquo;</span></h3>
+</li>
+</ol></li>
+<li>
+<h3><span style="font-weight: normal;">Edit the MonoGame Project File</span></h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">Right-Click the MonoGame Project</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Select &ldquo;Edit MyMonoGame.csproj&rdquo;</span></h3>
+</li>
+</ol></li>
+<li>
+<h3><span style="font-weight: normal;">Add XNA Build Properties </span> <span style="font-weight: normal;">Add the folowing properties the the first PropertyGroup element in the MyMonoGame project file </span></h3>
+<span style="font-weight: normal;"> &lt;XnaFrameworkVersion&gt;v4.0&lt;/XnaFrameworkVersion&gt; &lt;XnaPlatform&gt;Windows Phone&lt;/XnaPlatform&gt; &lt;XnaProfile&gt;Reach&lt;/XnaProfile&gt;</span>
+<h3><a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_18.png"><img src="/Media/Default/Migrated/image_thumb_8.png" alt="image" width="244" height="136" /></a></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Add XNA Content Project Reference Now scroll to the bottom of the file and add the following lines before the last Import element.</span></h3>
+<pre class="brush: xhtml; toolbar: false">  &lt;ItemGroup&gt;
+    &lt;ProjectReference Include="..\Content\Content.contentproj"&gt;
+      &lt;Name&gt;Content&lt;/Name&gt;
+      &lt;XnaReferenceType&gt;Content&lt;/XnaReferenceType&gt;
+      &lt;Project&gt;{DE6937C4-6E2F-4C83-A39B-F5E2305610C9}&lt;/Project&gt;
+    &lt;/ProjectReference&gt;
+  &lt;/ItemGroup&gt;</pre>
+<h3><span style="font-weight: normal;"><a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_26.png"><img src="/Media/Default/Migrated/image_thumb_12.png" alt="image" width="244" height="136" /></a></span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Add the XNA Content Pipeline targets Finally, after the last Import element add the XNA Content Pipeline targets import which will extend the build process and allow the content to be built with the Game project</span></h3>
+<pre class="brush: xhtml; toolbar: false">  &lt;Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\v4.0\Microsoft.Xna.GameStudio.Content.targets" /&gt;</pre>
+<h3><span style="font-weight: normal;"><a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_22.png"><img src="/Media/Default/Migrated/image_thumb_10.png" alt="image" width="244" height="136" /></a></span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Reload the Project</span></h3>
+<ol>
+<li>
+<h3><span style="font-weight: normal;">Save and close the currently open csproj file [CTRL-S] [CTRL-F4]</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Right click the MonoGame project in Solution Explorer</span></h3>
+</li>
+<li>
+<h3><span style="font-weight: normal;">Select &ldquo;Reload Project&rdquo; <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_28.png"><img src="/Media/Default/Migrated/image_thumb_13.png" alt="image" width="244" height="136" /></a> </span></h3>
+</li>
+</ol></li>
+</ol></li>
+<li>
+<h3>Write some test code <span style="font-weight: normal;">At this point everything should be wired up properly to build and deploy the project and content together. Lets make a few changes to our game class to see if it is all working properly.</span></h3>
+<ol>
+<li>
+<h3>Open the Game1.cs file <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_30.png"><img src="/Media/Default/Migrated/image_thumb_14.png" alt="image" width="244" height="136" /></a></h3>
+</li>
+<li>
+<h3>Add a Texture2D field</h3>
+<pre class="brush: c-sharp; toolbar: false">Texture2D _testTexture;</pre>
+<h3><a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_32.png"><img src="/Media/Default/Migrated/image_thumb_15.png" alt="image" width="244" height="136" /></a></h3>
+</li>
+<li>
+<h3>Load the Texture2D asset into the field In the LoadContent method after the TODO comment add:</h3>
+<pre class="brush: c-sharp; toolbar: false">_testTexture = Content.Load&lt;Texture2D&gt;("Image1");</pre>
+<h3><a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_34.png"><img src="/Media/Default/Migrated/image_thumb_16.png" alt="image" width="244" height="136" /></a></h3>
+</li>
+<li>
+<h3>Display the Texture2D on the screen using SpriteBatch. In the Draw Method, after the TODO Comment but before the base.Draw call:</h3>
+<pre class="brush: c-sharp; toolbar: false">_spriteBatch.Begin();
+_spriteBatch.Draw(_testTexture, new Rectangle(100, 100, 100, 100), Color.White);
+_spriteBatch.End();</pre>
+<h3><a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_36.png"><img src="/Media/Default/Migrated/image_thumb_17.png" alt="image" width="244" height="136" /></a></h3>
+</li>
+</ol></li>
+<li>
+<h3>Build + Test <span style="font-weight: normal;">You know what to do&hellip;[F5] <a href="http://gwb.blob.core.windows.net/mathoms/Windows-Live-Writer/3bd1c0afd872_CAEA/image_40.png"><img src="/Media/Default/Migrated/image_thumb_19.png" alt="image" width="244" height="157" /></a> If you have problems and need to make a few changes, sometimes it appears that they don&rsquo;t seem to take. In that case try doing a clean then rebuild.</span></h3>
+</li>
+</ol>
+<h2>Wrap Up</h2>
+<p>With these changes in place, you can now enjoy the edit, build, deploy, test cadence that you were used to with XNA Game Studio. No longer do you need to switch between two instances of Visual Studio and manually copy files into the packaging folder.</p>
+

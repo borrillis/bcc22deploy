@@ -1,0 +1,8 @@
+﻿---
+layout: 'article'
+changefreq: daily
+priority: 0.8
+referencesOthers: true
+title: "Archives"
+---
+<%- @partial('abstract-list', {collection: @getCollection('posts')}) %>

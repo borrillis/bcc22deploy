@@ -1,0 +1,36 @@
+---
+cacheable: false
+---
+<article class="content-item blog-post">
+    <header>
+        <% if @individualPost: %>
+        <h1><%= @title %></h1>
+        <% else: %>
+        <h1><a href='<%= @url %>'><%= @title %></a></h1>
+        <% end %>
+
+        <% if @tags?: %>
+        <p class="tags">
+            <span>Posted in:</span>
+            <%- ("<a href='/tags/#{@getTagUrl(tag)}'>#{tag}</a>" for tag in @tags).join(', ') %>   
+        </p>
+        <% end %>
+        <div class="metadata">
+            <div class="published"><%=  @moment(@date).format('dddd, MMM Do, YYYY h:mm:ss a') %></div>
+        </div>
+    </header>
+
+    <div class="post-content">
+	<% if @individualPost: %>
+		<%- @content %>
+    </div>
+	<footer>
+		<%- @partial('disqus') if @disqusShortName %>
+	</footer>
+	<% else: %>
+        <%- @getFirstParagraph(@content) %>
+    </div>
+    <div style="clear: both;"><a style="float:right" href="<%= @url %>">Read more...</a><div class="clear"></div></div>
+	<% end %>
+	    
+</article>

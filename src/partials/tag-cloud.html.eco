@@ -1,0 +1,14 @@
+<article class="widget-aside-second widget-tag-cloud widget">
+    <header>
+        <h1>Tags</h1>
+    </header>
+	<ul class="tag-cloud">
+	<% for tag, data of @getTagCloud(): %>
+		<li class="tag-cloud-tag tag-cloud-tag-<%= data.weight %>">
+		    <a href="/tags/<%= @getTagUrl(tag) %>">
+		        <%= tag %>
+		    </a>
+	    </li>
+	<% end %>
+	</ul>
+</article>

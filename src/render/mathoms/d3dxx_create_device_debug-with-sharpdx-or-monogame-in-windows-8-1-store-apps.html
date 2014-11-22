@@ -1,0 +1,12 @@
+---
+layout: post
+title: D3Dxx_CREATE_DEVICE_DEBUG with SharpDX or MonoGame in Windows 8.1 Store Apps
+tags: ['MonoGame', 'SharpDX', 'Windows 8.1']
+date: 10/29/2013 10:17:00 AM
+draft: false
+---
+
+<p>I recently encountered this error after updating my development machine to Windows 8.1. At the time <a href="http://blogs.msdn.com/b/chuckw/archive/2013/10/18/visual-studio-2013-and-windows-8-1-sdk-rtm-are-now-available.aspx">this blog post</a> wasn't available and I hadn't read any of the previous release notes to know what this error was. I eventually resolved the issue, but had actually forgotten about it, by installing VS2013 as part of my machines' refresh. So if you encounter this error, here is the resolution:</p>
+<p><span style="font-family: Segoe UI; font-size: 13pt;"><strong>Windows 8 users:</strong> If you upgrade to Windows 8.1, remember that all attempts to use D3Dxx_CREATE_DEVICE_DEBUG will fail until you upgrade the Developer Runtime. You can do this by installing VS 2013, the standalone Windows 8.1 SDK, or by installing the VS 2013 Remote Debugging Tools. </span></p>
+<p>&nbsp;</p>
+

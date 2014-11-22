@@ -1,0 +1,31 @@
+---
+layout: post
+title: New Digs, Windows Azure and Orchard
+tags: ['Orchard', 'Azure']
+date: 6/23/2013 7:22:10 AM
+draft: false
+---
+
+<h1>Come In, Come In!</h1>
+<p>Welcome to my new place! I have been working on getting this site up for a few days, so I hope you enjoy the new look. As the title says, the new site is hosted on Windows Azure, and running Orchard. I havd&nbsp;been intrigued by Orchard since it's early days, and I think that with version 1.6 it&nbsp;has matured enough for production.&nbsp;</p>
+<h2>Windows Azure</h2>
+<p>Let me start by saying, Windows Azure is very easy to use and configure. To support this site, I'm using Azure Web Sites. I think it took all of 5 clicks to create a new Web Site, and associated SQL Azure Database. As part of the process to create a new site, the wizard can also install a select set of software packages from the Gallery. So I chose to install Orchard during the setup. It was painless, and in about 10 minutes I had a functional site. I also configured the site with a new shiny domain name, which meant I couldn't use the free scaling option anymore, so I had to move up to shared. I must have something configured incorrectly with Orchard because during the time I was fixing up the theme I kept exceding the alotted memory usage for a shared instance, which is 512MB per hour. It got reather tedious waiting sometimes as long as 45 minutes for a reset, so the remainder of the thme development was done locally. WebMatix and VS 2012 integration FTW!</p>
+<h2>Orchard CMS</h2>
+<p>I choose Orchard because of it's first class architecture and modern structure. The Orchard team is using all of the best practices that they can to built a framework that can be used for just about anything. For now, I'm sticking to makeing a blog, but I have a few other ideas that I'll be implementing on Orchard and telling you about here.</p>
+<h3>Theme</h3>
+<p>The theme I'm using is based on the Mango theme from the Orchard Theme Gallery, I've lightened it, and made it responsive so that the site is useable from PC, tablet or phone. There are a still a few things I'll need to clean and fix over the next few weeks, but it's ready fo viewing. To build the theme was a bit of a chore.</p>
+<p>First I installed the Mango Theme on the site through the Theme Gallery. Then, instead of just modifing the theme directly, since Iknew there was a lot of work to be done on it, I copied the files into a new theme directory using WebMatrix. Now I could change anything fairly easily. I started with changing the background color from he dark color of the original theme to white. The original theme broke everything down pretty well, so chnging the colors meant mpdifying about 2 css files, and a quick search and replace, well, actually about 3 search and replaces later, and I had a white background. I then added the search box and few other minor changes. The finl hurdle in creating the theme was adding the bootstrap responsive css and js code. While not difficult, in fact it was incredibly easy to add, it did require a few custom css rules in order to get the tile menu and search to work well on a phone. If you notice something strange while viewing the site, please drop me a comment so I can fix it up. I plan on submitting this theme to the Orchard Theme Gallery shortly.</p>
+<h3>Modules</h3>
+<p>I've added a few modules in addition to the standard ones added by Orchard. When I installed Orchard I chose to follow the 'Blog' recipe which made setup and configuration much faster.</p>
+<p>I added the Indexing and Lucene Search modules to enable searching on the site. I hve ideas on writing a new module to support Bing Search.</p>
+<p>I added SiteMap module to enable better SEO</p>
+<p>There's a great module from Vandelay Industries that has a bunch of nice features, I really wanted it for the favicon, which I have yet to use.</p>
+<p>During the initial setup I also included the BlogML module, but that was used only to migrate over a few of the posts from my gwb site.</p>
+<p>I added the Email module, but I'm not sure it's working, I'll need to check that.</p>
+<p>I also added a sharing module which integrates with ShareThis, and it seems to be working ok.</p>
+<p>The comments module that comes with Orchard is very basic, I am thinking of replacing it with the Disqus module to get better commenting, but reviews are saying it doesn't work.</p>
+<h3>&nbsp;Cleanup</h3>
+<p>There are still some tasks I have to complete to finish up the migratio. The largest being, going through all the migrated posts and fixing the image links. The BlogML package while convienent, does have a few bugs. I also have to fix the Archives table directly in SQL as the Blog module from Orchard also appears to have some issues when importing and deleting posts.</p>
+<h2>Thanks for Visiting</h2>
+<p>I hope you like the new digs, come back soon, I'll have more material, there's lots of stuff I want to get out of my head.</p>
+

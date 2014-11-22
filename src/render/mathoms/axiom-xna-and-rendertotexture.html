@@ -1,0 +1,25 @@
+---
+layout: post
+title: Axiom, XNA and RenderToTexture
+tags: ['Axiom', 'XNA']
+date: 10/23/2009 9:24:00 AM
+draft: false
+---
+
+<p>So I learned something interesting about XNA. In Axiom, you can setup your entire scene before entering the renderloop. This way there isn’t any hiccups while rendering due to loading textures, models etc. In addition to Models and textures you can also setup additional render targets. These can be used for reflection planes, shadows, dynamic textures and what have you.</p> <p>Well this all works really well in DirectX and OpenGL. I can setup a (DX) Surface and hold that until I’m ready to render to it. In XNA however, there is a distinction between a Texture and a RenderTarget. You can only set RenderTargets on the device, and once your done rendering, you can take it off the device and get the result using GetTexture().</p> <p>This is how the original RenderToTexture (RTT) was implemented in XNA. However, GetTexture() is slow and calling it each frame caused a significant reduction in the number of frames per second. I threw in a quick optimization that only grabbed the Texture2D using GetTexture() once, to see if the reference was still valid between frames. My intuition was correct, the Texture2D that gets returned by GetTexture() isn’t recreated for each frame and I was able to get a 10% increase in my framerate. </p> <p>To make the code even nicer, I decided that I should grab the Texture2D as early as possible, right after I new up the RenderTarget. </p> <pre class="brush: csharp;">
+XFG.RenderTarget2D _renderTarget = new XFG.RenderTarget2D(_device, SrcWidth, SrcHeight, numMips, xnaPixelFormat);
+XFG.Texture2D _normTexture = _renderTarget.GetTexture();
+</pre>
+<p>Bad Idea.</p>
+<p>Now when calling GetTexture() I am getting a error that states I can’t call GetTexture() while the RenderTarget is still set on the device. ”But I haven’t set you on the device yet”, I screamed in frustration. After a little fiddling and discussion on the #xna IRC channel, which was more on why I needed what I needed than actually solving the problem, I found my solution.</p>
+<pre class="brush: csharp;">
+XFG.RenderTarget2D _renderTarget = new XFG.RenderTarget2D(_device, SrcWidth, SrcHeight, numMips, xnaPixelFormat);
+
+XFG.RenderTarget2D _oldTarget = _device.GetRenderTarget( 0 );
+_device.SetRenderTarget( 0, _renderTarget );
+_device.SetRenderTarget( 0, _oldTarget );
+Texture2D _normTexture = _renderTarget.GetTexture();
+</pre>
+<p>The error I was getting was a very good description of what was happening. XNA it seams does not create the Texture2D returned by GetTexture() until after it has been set on the device at least once. After that GetTexture() will return a valid Texture2D as long as it is no longer set on the device.</p>
+<p>There are two things to remember from this, one, GetTexture() is slow, keep a reference to the Texture instead, and GetTexture() isn’t valid until the RenderTarget has been on the device at least once.</p>
+

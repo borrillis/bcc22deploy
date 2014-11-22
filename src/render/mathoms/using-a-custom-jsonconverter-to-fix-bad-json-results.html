@@ -1,0 +1,163 @@
+﻿```
+layout: post
+title: Using a Custom JsonConverter to fix bad JSON results
+tags: ['C#', '.Net', 'Json.Net']
+date: 11/5/2013 2:42:25 PM 
+draft: false
+```
+<p>So this week I encountered an issue with a public web API that returned JSON. There were a couple of places in the results where it would return an array of items if there were more than one, but if there was only one item, it would return just that object. This makes Json.Net very unhappy. Let’s take a look at how you can solve a problem like this by extending the Json.Net de/serialization pipeline.</p> <p>It turns out the API in question is using a version of the Apache CXF framework that contains a bug that when it renders the JSON if it only has one element it doesn’t render the array notations. How inconvenient. In order to solve this problem I needed to reduce the dataset to something a bit more manageable. I created a simple C# class that had the basic structure of what I was looking for and was contextually accurate.</p> <div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:6fdb1ef7-4004-40cf-9933-26f15b21586d" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">    private class Order
+    {
+        public int id;
+        public string customer;
+        public List&lt;OrderItem&gt; items;
+    }
+
+    private class OrderItem
+    {
+        public int id;
+        public string description;
+        public double unit_price;
+        public double quantity;
+    }
+</pre></div>
+<p>For my simple example I went back to what is normally done, an order. As you can see from the code listing, this class has a wrapper for the result being returned, the actual order object being returned, and a set of Items being ordered. </p>
+<p>Next is to see what the result looks like from the web service. Here is a typical well formatted json response.</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:11cabb6d-b5e2-4ad4-8328-860724355443" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: javascript;">{   id : 1, 
+    customer : 'Joe Black', 
+    items : [ { id : 1, description: 'One', unit_price: 1.00, quantity: 1}, 
+	 { id : 2, description:'Two', unit_price: 2.00, quantity: 2}, 
+	 { id : 3, description:'Three', unit_price: 3.00, quantity: 3} 
+               ] 
+} 
+</pre></div>
+<p>And a poorly formatted response:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:551bca4b-ad24-40b3-bfa3-458266d4f8b3" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: javascript;">{   id : 1, 
+    customer : 'Joe Black', 
+    items : { id : 1, description: 'One', unit_price: 1.00, quantity: 1}
+} </pre></div>
+<p>To get started I created a new test project so I can create some unit test to make sure everything was working where it should and failing where it should too. Below you will find the start of my test class, complete with two tests, one to test a valid json response and a second to test the bad json we were seeing from the API.</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:84258fd2-9358-41f0-a914-e52fdd3582f0" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">[TestClass]
+public class SingleValueArrayConverter_1Tests
+{
+    private const string WellFormedJson = "{ id : 1, customer : 'Joe Black', items : [ { id : 1, description:'One', unit_price: 1.00, quantity: 1}, { id : 2, description:'Two', unit_price: 2.00, quantity: 2}, { id : 3, description:'Three', unit_price: 3.00, quantity: 3} ] } ";
+
+    private const string PoorlyFormedJson = "{ id : 1, customer : 'Joe Black', items : { id : 1, description:'One', unit_price: 1.00, quantity: 1} } ";
+
+    private class Order
+    {
+        public int id;
+        public string customer;
+        public List&lt;OrderItem&gt; items;
+    }
+
+    private class OrderItem
+    {
+        public int id;
+        public string description;
+        public double unit_price;
+        public double quantity;
+    }
+
+    [TestMethod]
+    public void DeserializeWellFormedJson()
+    {
+        var objString = WellFormedJson;
+        var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, DateFormatHandling = DateFormatHandling.IsoDateFormat };
+        var order = JsonConvert.DeserializeObject&lt;Order&gt;(objString, settings);
+
+        Assert.IsNotNull(order);
+        Assert.IsNotNull(order.items);
+        Assert.AreEqual(order.items.Count, 3);
+    }
+
+    [TestMethod]
+    //[ExpectedException(typeof(Newtonsoft.Json.JsonSerializationException),"Looks like it's working properly now!")]
+    public void DeserializePoorlyFormedJson()
+    {
+        var objString = PoorlyFormedJson;
+        var settings = new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore, DateFormatHandling = DateFormatHandling.IsoDateFormat };
+        var order = JsonConvert.DeserializeObject&lt;Order&gt;(objString, settings);
+
+        Assert.IsNotNull(order);
+        Assert.IsNotNull(order.items);
+        Assert.AreEqual(order.items.Count, 1);
+    }
+}</pre></div>
+<p>If you run the tests now, you will find that the second test is failing. The Exception should be something similar to this:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:342a058a-89b7-4f8f-b03c-03cd2b9c97c6" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: text;">Newtonsoft.Json.JsonSerializationException: Cannot deserialize the current JSON object (e.g. {"name":"value"}) into type 'System.Collections.Generic.List`1[GiveForYouthTest.SingleValueArrayConverter_1Tests+OrderItem]' because the type requires a JSON array (e.g. [1,2,3]) to deserialize correctly.
+To fix this error either change the JSON to a JSON array (e.g. [1,2,3]) or change the deserialized type so that it is a normal .NET type (e.g. not a primitive type like integer, not a collection type like an array or List&lt;T&gt;) that can be deserialized from a JSON object. JsonObjectAttribute can also be added to the type to force it to deserialize from a JSON object.
+Path 'items.id', line 1, position 48.
+</pre></div>
+<p>Now to correct this situation. Luckily for us, Json.Net allows it’s deserialization pipeline to be extended quite easily. The easiest way that I have found is to create a custom converter that properly handles the json that you are receiving. <a href="http://james.newtonking.com/json/help/index.html" target="_blank">The documentation for creating a custom converter</a> is a little sparse, but in this day and age the internet <a href="http://cgeers.com/2011/09/25/writing-a-custom-json-net-datetime-converter/" target="_blank">can help a lot.</a> Although the post is a little dated it’s still good to get started and provided me with the tips I needed to solve this current dilemma.</p>
+<p>To start, I created a skeleton converter:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:f9953a4c-6929-48fd-b7c6-5f64dc3dad77" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: text;">public class SingleValueArrayConverter : JsonConverter
+{
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool CanConvert(Type objectType)
+    {
+        return false;
+    }
+}</pre></div>
+
+
+
+
+
+<p>This intially has made no change in my tests as my object model is not using this converter yet. So I add the Json.net attribute to specify that I want my ‘items’ property to be converted using my custom converter. This changes the Order class to look like this:</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:edb080b7-c840-4c5f-8ce8-44ea32bc5e94" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">private class Order
+{
+    public int id;
+    public string customer;
+    [JsonConverter(typeof(SingleValueArrayConverter))]
+    public List&lt;OrderItem&gt; items;
+}</pre></div>
+<p>As you might expect, now both of my tests are failing due to the throwing of a NotImplementedException. So lets get that fixed up right quick and get back to one red and one green test. The easiest way to fix it is to forward the serialization of the property right back to the Json.Net engine in the ReadJson method. The ReadJson method now looks like the following:</p>
+<p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:a6d7b27f-4776-45d1-a87f-7ef9d40230c6" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+{
+        return serializer.Deserialize(reader, objectType);
+}
+</pre></div>And the DeserializeWellFormedJson is green again. Now the trick is to determine am I deserializing a single object or an array? Json.net gives us that information through the reader.TokenType property. It’s an enumeration that has two values that we are interested in, JsonToken.StartObject and JsonToken.StartArray. with a quick if statement we can now flip how we handle each condition.</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:8869748a-162c-43f1-9592-b89154d03c35" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+{
+    object retVal = new Object();
+    if (reader.TokenType == JsonToken.StartObject)
+    {
+    }
+    else if (reader.TokenType == JsonToken.StartArray)
+    {
+        retVal = serializer.Deserialize(reader, objectType);
+    }
+    return retVal;
+}</pre></div>
+<p>Our tests should still be one red, one green. Lastly is how to create the correct type to return when it’s a single object. Since this converter is specified on the property of the object we know at compile time what type each item is, it the type of the element in the array or list we are trying to deserialize. To get that type, all we need to do is genericize this class and pass the item type as a Type Parameter.</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:e38cca3a-2862-4f3b-9da1-893f80203826" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: c#;">public class SingleValueArrayConverter&lt;T&gt; : JsonConverter</pre></div>
+
+
+<p>If we try t run our tests, we get a compilation error because we need to fix the items property Attribute of the Order class. This a quick and easy change to make and our tests should still be one green, one red. </p>
+<p>T can now be used in ReadJson to create the correct type and insert it into a List.</p>
+<div id="scid:f32c3428-b7e9-4f15-a8ea-c502c7ff2e88:73b2bf5f-e858-43cc-8187-0c980e3d4c72" class="wlWriterEditableSmartContent" style="float: none; padding-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px"><pre class="brush: text;">public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+{
+    object retVal = new Object();
+    if (reader.TokenType == JsonToken.StartObject)
+    {
+        T instance = (T)serializer.Deserialize(reader, typeof(T));
+        retVal = new List&lt;T&gt;() { instance };
+    }
+    else if (reader.TokenType == JsonToken.StartArray)
+    {
+        retVal = serializer.Deserialize(reader, objectType);
+    }
+    return retVal;
+}
+</pre></div>
+<p>If you run the tests now you should get both green! The only thing that makes this converter not completely reusable is the creation of the List&lt;T&gt;, which is also passed in as objectType. I’ll leave it up to you to fix this if you need that type of flexibility, for my project we just standardized on using List&lt;&gt; over other collection types.</p>

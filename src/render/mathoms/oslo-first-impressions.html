@@ -1,0 +1,18 @@
+---
+layout: post
+title: Oslo : First Impressions
+tags: ['PDC2008', 'Oslo']
+date: 11/1/2008 6:39:36 PM
+draft: false
+---
+
+<p>You can very easily tell when I'm excited by a technology. I get very emphatic when talking about technologies that I 'get'. Oslo is one of those. When I was planning my trip to the PDC this year, Oslo was a distant third in my list of priorities. Tops on the list was Azure, followed by Windows 7. It only took one session with Don Box to make me change all of that. Mostly because I just didn't get it. A tool for Domain Driven Design, or a tool to create Domain Specific Languages?  As it turns out, it's both, and more.</p>
+<h3>What is Oslo?</h3>
+<p><a href="http://gwb.blob.core.windows.net/mathoms/WindowsLiveWriter/OsloFirstImpressions_13E71/image_8.png"><img height="184" border="0" align="right" width="244" src="/Media/Default/Media/Default/Migrated/image_thumb_3.png" alt="image" style="border: 0px none ;"></a> </p>
+<p> Oslo is a platform of technologies designed to help us create model driven applications. Currently Oslo is composed of 3 components; A language , a tool, and  a database.</p>
+<p>Actually, there are two languages that come with the Oslo SDK on MSDN, "M" (M) and "M Grammar" (Mg). M is used to define your models. It in itself is a DSL defined by Mg. Mg is a grammar that allows you to define new DSL's. The purpose of the languages is to give non-visual among us a textual representation of our models. There are a set of command line utilities used to compile your M and Mg files and deploy them to a Repository.</p>
+<p>The tool is called Quadrant, and it's a graphical tool for creating models. It interacts with the Repository directly. You can create new models and instances and then display them in useful views. As one of the members of the team Oslo out it, "It's the last application you'll ever install".</p>
+<p>The Repository is a database for storing and sharing models. The repository is the central point in the entire platform. The model and the data stored in the model are kept in the database. Both M and it's tool chain and Quadrant deploy the models into the Repository. You can have multiple Repositories in your enterprise, in fact you probably will with development, staging and production environments.</p>
+<h3>What's Next</h3>
+<p>I think I "get" Oslo. I'll be spending more time with this technology and reporting back here on my findings. Hopefully this will help others "get" Oslo as well. Who knows what we will end up with when it's finally released, but at this stage we have a lot more input into the direction of this Platform that a lot of previous technologies coming out of Microsoft. Remember that Oslo is not even in Beta yet so a lot of it could change or even disappear like Astoria. There are still a lot of very cool things happening in this SDK that it's worth giving a few looks at.</p>
+

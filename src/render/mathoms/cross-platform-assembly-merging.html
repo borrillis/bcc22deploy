@@ -1,0 +1,75 @@
+---
+layout: post
+title: Cross platform assembly merging
+date: 2/12/2009 11:24:50 AM
+draft: false
+---
+
+<p>A common problem I have with users of Axiom is that they will mismatch the assemblies need to get the engine up and running. Axiom uses a plugin system that allows for interchanging the platform in use (Win32, SDL, etc ) and which graphics system to use ( XNA, OpenGL, DirectX ). Unfortunately, there isn’t as loose coupling as I’d like, in particular the OpenGL rendering system has to be recompiled to use S.W.F forms or SDL forms. SLD is the particularly nasty one because it has to be paired with the SDL platform manager.</p>  <p>A few months ago I ran across the <a href="http://www.microsoft.com/downloads/details.aspx?familyid=22914587-b4ad-4eae-87cf-b14ae6a939b0&amp;displaylang=en" target="_blank">ILMerge</a> utility and thought that it would solve some problems. I could combine the main engine with the proper combinations of a platform manger and render system there by eliminating the mismatch. I didn’t investigate it much because a quick try just created errors. More recently a request came up on the forums to be able to do this exact thing. I took a few hours and made it so that users could use ILMerge on the assemblies and have the system behave properly. However I didn’t make the assemblies myself, as I wasn’t preparing for a release.</p>  <p>Fast forward to this week. I should have released a beta of Axiom 0.7.5 back in January, but because things were a bit crazy I didn’t get to it until this week. With this release I wanted to be able to ship these combined assemblies. I like to automate things so I found an implementation of some <a href="http://code.google.com/p/ilmerge-tasks" target="_blank">MSBuild tasks that use ILMerge</a> to produce a single assembly. </p>  <p>Now this week I had also been testing Mono’s xbuild, which is an implementation of MSBuild but on mono. Knowing that I have a large percentage of my users are linux based I investigated the ability of ILMerge to run on Mono. It doesn’t. </p>  <p>Ok, back to the drawing board. After a quick search I found <a href="http://evain.net/blog/articles/2006/11/06/an-introduction-to-mono-merge" target="_blank">MonoMerge</a>. I tested it out a little to see if it worked, as it didn’t have as many options as ILMerge. It seemed to do the rick.</p>  <p>Now I needed a MSBuild task to execute MonoMerge. Using the ILMerge task as a guide I quickly put together a new MSBuild task that can now merge assemblies on Mono and .Net.</p>  <p>Enjoy!</p>  <p>UPDATE : Added hyperlinks to various resources.</p>  <div>   <pre class="csharpcode"><span class="kwrd">using</span> System;
+<span class="kwrd">using</span> Microsoft.Build.Framework;
+<span class="kwrd">using</span> Microsoft.Build.Utilities;
+<span class="kwrd">using</span> Mono.Cecil;
+<span class="kwrd">using</span> Mono.Merge;
+
+<span class="kwrd">namespace</span> Mathoms.MSBuild.Tasks
+{
+    <span class="kwrd">public</span> <span class="kwrd">class</span> MonoMerge : Task 
+    {
+        <span class="kwrd">private</span> <span class="kwrd">string</span> _outputFile;
+        <span class="kwrd">private</span> ITaskItem[] _assemblies = <span class="kwrd">new</span> ITaskItem[0];
+
+        [Required]
+        <span class="kwrd">public</span> <span class="kwrd">virtual</span> <span class="kwrd">string</span> OutputFile
+        {
+            get { <span class="kwrd">return</span> _outputFile; }
+            set { _outputFile = System.IO.Path.Combine(BuildEngine.ProjectFileOfTaskNode,<span class="kwrd">value</span>); }
+        }
+
+        [Required]
+        <span class="kwrd">public</span> <span class="kwrd">virtual</span> ITaskItem[] InputAssemblies
+        {
+            get { <span class="kwrd">return</span> _assemblies; }
+            set { _assemblies = <span class="kwrd">value</span>; }
+        }
+
+
+        <span class="kwrd">public</span> <span class="kwrd">override</span> <span class="kwrd">bool</span> Execute()
+        {
+            var context = <span class="kwrd">new</span> MergeContext {OutputPath = _outputFile};
+
+            var assemblies = <span class="kwrd">new</span> <span class="kwrd">string</span>[ _assemblies.Length];
+            <span class="kwrd">for</span>( var i = 0; i &lt; assemblies.Length; i++ )
+            {
+                assemblies[ i ] = _assemblies[ i ].ToString();
+            }
+
+            context.Assemblies.AddRange( assemblies );
+
+            <span class="kwrd">try</span>
+            {
+                var primary = AssemblyFactory.GetAssembly( context.Assemblies[ 0 ] );
+
+                <span class="kwrd">for</span> ( <span class="kwrd">int</span> i = 1; i &lt; context.Assemblies.Count; i++ )
+                {
+                    var asm = AssemblyFactory.GetAssembly( context.Assemblies[ i ] );
+                    asm.Accept( <span class="kwrd">new</span> StructureMerger( context, primary, asm ) );
+                }
+
+                var fix = <span class="kwrd">new</span> FixReflectionAfterMerge( context, primary, primary );
+                fix.Process();
+
+                AssemblyFactory.SaveAssembly( primary, context.OutputPath );
+
+            }
+            <span class="kwrd">catch</span> (Exception e)
+            {
+                Log.LogErrorFromException(e);
+                <span class="kwrd">return</span> <span class="kwrd">false</span>;
+            }
+
+            <span class="kwrd">return</span> <span class="kwrd">true</span>;
+        }
+    }
+}</pre>
+</div>
+

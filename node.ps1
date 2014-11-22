@@ -1,0 +1,1 @@
+& 'C:\Program Files (x86)\nodejs\nodevars.bat'
